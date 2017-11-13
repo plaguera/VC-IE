@@ -1,7 +1,9 @@
 package imageFrame;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -69,8 +71,20 @@ public class ImagePane extends Panel {
 
 	public class ImagePanel extends JPanel {
 		public ImagePanel() {
-			setMinimumSize(getImage().getSize());
-			setPreferredSize(getImage().getSize());
+			setPreferredSize(scaleBack());
+		}
+		
+		private Dimension scaleBack() {
+			int width = getImage().getWidth();
+			int height = getImage().getHeight();
+			int maxW = (int) ((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth()*0.75);
+			int maxH = (int) ((int) Toolkit.getDefaultToolkit().getScreenSize().getHeight()*0.75);
+			int auxW = width, auxH = height;
+			while(auxW > maxW || auxH > maxH) {
+				auxW -= (int)(0.1*(double)width);
+				auxH -= (int)(0.1*(double)height);
+			}
+			return new Dimension(auxW,auxH);
 		}
 
 		@Override

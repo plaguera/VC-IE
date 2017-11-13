@@ -87,7 +87,6 @@ public class Image extends Observable {
 	}
 	
 	public void reset() {
-		//set(ImageUtils.copyImage(getOriginal()));
 		getDll().toBeginning();
 		changed();
 	}
@@ -98,33 +97,6 @@ public class Image extends Observable {
 	
 	public int getHeight() {
 		return get().getHeight();
-	}
-	
-	public double brightness() {
-		int sum = 0;
-		int total = get().getWidth() * get().getHeight();
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++)
-				sum += ImageUtils.brightness(get().getRGB(col, row));
-		return (double)sum / (double)total;
-	}
-	
-	public double contrast() {
-		int[] aux = new int[get().getWidth()*get().getHeight()];
-		int k = 0;
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++)
-				aux[k++] = ImageUtils.brightness(get().getRGB(col, row));
-		
-		double sum = 0.0, standardDeviation = 0.0;
-        for(int num : aux)
-            sum += num;
-
-        double mean = (double)sum/(double)aux.length;
-        for(int num: aux)
-            standardDeviation += Math.pow(num - mean, 2);
-        
-		return Math.sqrt((double)standardDeviation/(double)aux.length);
 	}
 	
 	public void adjustment(double brightness, double contrast) {
@@ -153,6 +125,26 @@ public class Image extends Observable {
 				RGB i = lut[col][row].gamma(gamma);
 				image.setRGB(col, row, i.toInt());
 			}
+		getDll().add(image);
+		changed();
+	}
+	
+	public void linearTransform(List<FunctionSegment> f) {
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
+		for (int row = 0; row < get().getHeight(); row++) {
+			for (int col = 0; col < get().getWidth(); col++) {
+				int[] rgb = ColorUtils.intToRGB(lastCommit().getRGB(col, row));
+				for(int i = 0; i <rgb.length; i++) {
+					for (FunctionSegment segment : f) {
+						if (segment.contains(rgb[i])) {
+							rgb[i] = ImageUtils.truncate((int) segment.f(rgb[i]));
+							break;
+						}
+					}
+				}
+				image.setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
+			}
+		}
 		getDll().add(image);
 		changed();
 	}
@@ -206,22 +198,55 @@ public class Image extends Observable {
 		changed();
 	}
 	
-	public void linearTransform(List<FunctionSegment> f) {
-		for (int row = 0; row < get().getHeight(); row++) {
-			for (int col = 0; col < get().getWidth(); col++) {
-				int[] rgb = ColorUtils.intToRGB(getOriginal().getRGB(col, row));
-				for(int i = 0; i <rgb.length; i++) {
-					for (FunctionSegment segment : f) {
-						if (segment.contains(rgb[i])) {
-							rgb[i] = ImageUtils.truncate((int) segment.f(rgb[i]));
-							break;
-						}
-					}
-				}
-				get().setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
+	public Image difference(BufferedImage newImage) {
+		if(getWidth() != newImage.getWidth() || getHeight() != newImage.getHeight())
+			return null;
+		BufferedImage result = ImageUtils.copyImage(newImage);
+		for (int row = 0; row < result.getHeight(); row++) {
+			for (int col = 0; col < result.getWidth(); col++) {
+				RGB a = new RGB(newImage.getRGB(col, row));
+				RGB color = get(col, row).absDifference(a);
+				result.setRGB(col, row, color.toInt());
 			}
 		}
-		changed();
+		return new Image(result, getPath());
+	}
+	
+	public Image colorChangeMap(int threshold) {
+		BufferedImage aux = ImageUtils.copyImage(get());
+		RGB[][] rgb = new LUT(aux).getLut();
+		for (int row = 0; row < get().getHeight(); row++)
+			for (int col = 0; col < get().getWidth(); col++)
+				if(rgb[col][row].gray() >= threshold)
+					aux.setRGB(col, row, Color.RED.getRGB());
+		return new Image(aux, getPath());
+	}
+	
+	public double brightness() {
+		int sum = 0;
+		int total = get().getWidth() * get().getHeight();
+		for (int row = 0; row < get().getHeight(); row++)
+			for (int col = 0; col < get().getWidth(); col++)
+				sum += ImageUtils.brightness(get().getRGB(col, row));
+		return (double)sum / (double)total;
+	}
+	
+	public double contrast() {
+		int[] aux = new int[get().getWidth()*get().getHeight()];
+		int k = 0;
+		for (int row = 0; row < get().getHeight(); row++)
+			for (int col = 0; col < get().getWidth(); col++)
+				aux[k++] = ImageUtils.brightness(get().getRGB(col, row));
+		
+		double sum = 0.0, standardDeviation = 0.0;
+        for(int num : aux)
+            sum += num;
+
+        double mean = (double)sum/(double)aux.length;
+        for(int num: aux)
+            standardDeviation += Math.pow(num - mean, 2);
+        
+		return Math.sqrt((double)standardDeviation/(double)aux.length);
 	}
 	
 	public double shannonEntropy() {
@@ -257,30 +282,6 @@ public class Image extends Observable {
 		return new Point(min, max);
 	}
 	
-	public Image difference(BufferedImage newImage) {
-		if(getWidth() != newImage.getWidth() || getHeight() != newImage.getHeight())
-			return null;
-		BufferedImage result = ImageUtils.copyImage(newImage);
-		for (int row = 0; row < result.getHeight(); row++) {
-			for (int col = 0; col < result.getWidth(); col++) {
-				RGB a = new RGB(newImage.getRGB(col, row));
-				RGB color = get(col, row).absDifference(a);
-				result.setRGB(col, row, color.toInt());
-			}
-		}
-		return new Image(result, getPath());
-	}
-	
-	public Image colorChangeMap(int threshold) {
-		BufferedImage aux = ImageUtils.copyImage(get());
-		RGB[][] rgb = new LUT(aux).getLut();
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++)
-				if(rgb[col][row].gray() >= threshold)
-					aux.setRGB(col, row, Color.RED.getRGB());
-		return new Image(aux, getPath());
-	}
-	
 	public RGB get(int x, int y) {
 		return new RGB(get().getRGB(x, y));
 	}
@@ -297,23 +298,17 @@ public class Image extends Observable {
 		return Math.log(value) / Math.log(2);
 	}
 	
-	public BufferedImage 	get() { return dll.getCurrent().getValue(); }
-	public String 			getPath() { return path; }
-	public BufferedImage 	getOriginal() { return original; }
-	//public void set(BufferedImage image) 			{ this.image = image; }
+	public BufferedImage 		get() 				{ return dll.getCurrent().getValue(); }
+	public String 				getPath() 			{ return path; }
+	public BufferedImage 		getOriginal() 		{ return original; }
+	public DLL<BufferedImage> 	getDll() 			{ return dll; }
 	public void setPath(String path) 				{ this.path = path; }
 	public void setOriginal(BufferedImage original) 	{ this.original = original; }
+	public void setDll(DLL<BufferedImage> dll) 		{ this.dll = dll; }
 	
 	private BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
 	}
 
-	public DLL<BufferedImage> getDll() {
-		return dll;
-	}
-
-	public void setDll(DLL<BufferedImage> dll) {
-		this.dll = dll;
-	}
 
 }

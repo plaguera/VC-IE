@@ -113,6 +113,8 @@ public class ImageFrame extends Frame implements Observer {
 		getMnFile().add(getMntmExit());
 		
 		getMnEdit().add(getMntmToGrayscale());
+		getMnEdit().add(getMntmUndo());
+		getMnEdit().add(getMntmRedo());
 		
 		getMnView().add(getMntmShowHideProp());
 		

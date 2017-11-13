@@ -3,6 +3,8 @@ package imageFrame;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -30,7 +32,7 @@ public class ImageFrame extends Frame implements Observer {
 	
 	private JMenuBar menuBar;
 	private JMenu mnFile, mnEdit, mnView;
-	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp;
+	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo;
 
 	private Image image;
 	private JTabbedPane tabbedPane;
@@ -60,6 +62,7 @@ public class ImageFrame extends Frame implements Observer {
 		add(getPropertiesPane(), BorderLayout.WEST);
 		menuBar();
 		pack();
+		
 	}
 
 	public ImageFrame(String file) {
@@ -102,6 +105,8 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmExit(new JMenuItem("Exit..."));
 		setMntmToGrayscale(new JMenuItem("Convert to Grayscale"));
 		setMntmShowHideProp(new JMenuItem("Show / Hide Properties"));
+		setMntmUndo(new JMenuItem("Undo"));
+		setMntmRedo(new JMenuItem("Redo"));
 		
 		getMnFile().add(getMntmOpen());
 		getMnFile().add(getMntmSave());
@@ -158,6 +163,38 @@ public class ImageFrame extends Frame implements Observer {
 				setLocationRelativeTo(null);
 			}
 		});
+		
+		getMntmUndo().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().ctrlZ();
+			}
+		});
+		
+		getMntmRedo().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().ctrlY();
+			}
+		});
+		setFocusable(true);
+		addKeyListener(new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
+					getImage().ctrlZ();
+				}
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
+					getImage().ctrlY();
+				}
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 	}
 
 	public Image 			getImage() { return image; }
@@ -188,6 +225,22 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMntmToGrayscale(JMenuItem mntmToGrayscale) 	{ this.mntmToGrayscale = mntmToGrayscale; }
 	public void setMntmShowHideProp(JMenuItem mntmShowHideProp) 	{ this.mntmShowHideProp = mntmShowHideProp; }
 	public void setPropertiesPane(PropertiesPane propertiesPane) 	{ this.propertiesPane = propertiesPane; }
+
+	public JMenuItem getMntmUndo() {
+		return mntmUndo;
+	}
+
+	public void setMntmUndo(JMenuItem mntmUndo) {
+		this.mntmUndo = mntmUndo;
+	}
+
+	public JMenuItem getMntmRedo() {
+		return mntmRedo;
+	}
+
+	public void setMntmRedo(JMenuItem mntmRedo) {
+		this.mntmRedo = mntmRedo;
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {

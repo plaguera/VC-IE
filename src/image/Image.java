@@ -11,28 +11,33 @@ import java.util.Observable;
 
 import pane.linearTransformation.FunctionSegment;
 import utils.ColorUtils;
+import utils.DLL;
 import utils.ImageUtils;
 
 public class Image extends Observable {
 	
-	private BufferedImage image, original;
+	private BufferedImage original;
+	private DLL<BufferedImage> dll;
 	private String path;
 	
 	public Image(String path) {
 		setPath(path);
-		set(ImageUtils.readImage(getPath()));
+		//set(ImageUtils.readImage(getPath()));
+		setDll(new DLL<BufferedImage>(ImageUtils.readImage(getPath())));
 		setOriginal(ImageUtils.readImage(getPath()));
 	}
 	
 	public Image(Image image) {
 		setPath(image.getPath());
-		set(ImageUtils.copyImage(image.get()));
+		//set(ImageUtils.copyImage(image.get()));
+		setDll(new DLL<BufferedImage>(get()));
 		setOriginal(ImageUtils.copyImage(image.get()));
 	}
 	
 	public Image(BufferedImage image, String path) {
 		setPath(path);
-		set(ImageUtils.copyImage(image));
+		//set(ImageUtils.copyImage(image));
+		setDll(new DLL<BufferedImage>(get()));
 		setOriginal(ImageUtils.copyImage(image));
 	}
 	
@@ -58,17 +63,32 @@ public class Image extends Observable {
 		return get().getSubimage(x, y, w, h);
 	}
 	
+	public void commit() {
+		getDll().commit();
+	}
+	
+	public void ctrlZ() {
+		getDll().backward();
+		changed();
+	}
+	
+	public void ctrlY() {
+		getDll().forward();
+		changed();
+	}
+	
 	public void toGrayScale() {
 		BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		Graphics g = image.getGraphics();
 		g.drawImage(original, 0, 0, null);
 		g.dispose();
-		set(image);
+		getDll().add(image);
 		changed();
 	}
 	
 	public void reset() {
-		set(ImageUtils.copyImage(getOriginal()));
+		//set(ImageUtils.copyImage(getOriginal()));
+		getDll().toBeginning();
 		changed();
 	}
 	
@@ -82,19 +102,19 @@ public class Image extends Observable {
 	
 	public double brightness() {
 		int sum = 0;
-		int total = image.getWidth() * image.getHeight();
-		for (int row = 0; row < image.getHeight(); row++)
-			for (int col = 0; col < image.getWidth(); col++)
-				sum += ImageUtils.brightness(image.getRGB(col, row));
+		int total = get().getWidth() * get().getHeight();
+		for (int row = 0; row < get().getHeight(); row++)
+			for (int col = 0; col < get().getWidth(); col++)
+				sum += ImageUtils.brightness(get().getRGB(col, row));
 		return (double)sum / (double)total;
 	}
 	
 	public double contrast() {
-		int[] aux = new int[image.getWidth()*image.getHeight()];
+		int[] aux = new int[get().getWidth()*get().getHeight()];
 		int k = 0;
-		for (int row = 0; row < image.getHeight(); row++)
-			for (int col = 0; col < image.getWidth(); col++)
-				aux[k++] = ImageUtils.brightness(image.getRGB(col, row));
+		for (int row = 0; row < get().getHeight(); row++)
+			for (int col = 0; col < get().getWidth(); col++)
+				aux[k++] = ImageUtils.brightness(get().getRGB(col, row));
 		
 		double sum = 0.0, standardDeviation = 0.0;
         for(int num : aux)
@@ -108,43 +128,48 @@ public class Image extends Observable {
 	}
 	
 	public void adjustment(double brightness, double contrast) {
-		double A = contrast / ImageUtils.contrast(getOriginal());
-		double B = brightness - ImageUtils.brightness(getOriginal()) * A;
-		for (int row = 0; row < image.getHeight(); row++) {
-			for (int col = 0; col < image.getWidth(); col++) {
-				int[] rgb = ColorUtils.intToRGB(getOriginal().getRGB(col, row));
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
+		
+		double A = contrast / ImageUtils.contrast(lastCommit());
+		double B = brightness - ImageUtils.brightness(lastCommit()) * A;
+		for (int row = 0; row < get().getHeight(); row++) {
+			for (int col = 0; col < get().getWidth(); col++) {
+				int[] rgb = ColorUtils.intToRGB(lastCommit().getRGB(col, row));
 				rgb[0] = ImageUtils.truncate((int) (rgb[0] * A + B));
 				rgb[1] = ImageUtils.truncate((int) (rgb[1] * A + B));
 				rgb[2] = ImageUtils.truncate((int) (rgb[2] * A + B));
 				image.setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
 			}
 		}
+		getDll().add(image);
 		changed();
 	}
 	
 	public void gamma(double gamma) {
-		RGB[][] lut = new LUT(getOriginal()).getLut();
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
+		RGB[][] lut = new LUT(lastCommit()).getLut();
 		for (int row = 0; row < get().getHeight(); row++)
 			for (int col = 0; col < get().getWidth(); col++) {
 				RGB i = lut[col][row].gamma(gamma);
-				get().setRGB(col, row, i.toInt());
+				image.setRGB(col, row, i.toInt());
 			}
+		getDll().add(image);
 		changed();
 	}
 	
 	public void downsample(int sampleSize) {
-		BufferedImage aux = ImageUtils.copyImage(getOriginal());
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
 		
-		for (int row = 0; row < aux.getHeight(); row += sampleSize) {
-			for (int col = 0; col < aux.getWidth(); col += sampleSize) {
+		for (int row = 0; row < image.getHeight(); row += sampleSize) {
+			for (int col = 0; col < image.getWidth(); col += sampleSize) {
 				RGB[][] sample = null;
 				int width = 0, height = 0;
-				if(row+sampleSize >= aux.getHeight())
-					width = Math.abs(sampleSize - (aux.getHeight() - row+sampleSize));
+				if(row+sampleSize >= image.getHeight())
+					width = Math.abs(sampleSize - (image.getHeight() - row+sampleSize));
 				else
 					width = sampleSize;
-				if(col+sampleSize >= aux.getWidth())
-					height = Math.abs(sampleSize - (aux.getWidth() - col+sampleSize));
+				if(col+sampleSize >= image.getWidth())
+					height = Math.abs(sampleSize - (image.getWidth() - col+sampleSize));
 				else
 					height = sampleSize;
 				int side = Math.min(width, height);
@@ -152,7 +177,7 @@ public class Image extends Observable {
 					
 				for (int i = 0; i < side; i++)
 					for (int j = 0; j < side; j++)
-						sample[i][j] = new RGB(aux.getRGB(col+i, row+j));
+						sample[i][j] = new RGB(image.getRGB(col+i, row+j));
 				
 				RGB average = RGB.average(sample);
 				
@@ -161,20 +186,23 @@ public class Image extends Observable {
 						image.setRGB(i, j, average.toInt());
 			}
 		}
+		getDll().add(image);
 		changed();
 	}
 	
 	public void changeColorDepth(int bits) {
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
 		int colors = (int) Math.pow(2, bits);
 		int length = 256/colors;
-		for (int row = 0; row < getOriginal().getHeight(); row++) {
-			for (int col = 0; col < getOriginal().getWidth(); col++) {
-				int preColor = getOriginal().getRGB(col, row);
+		for (int row = 0; row < lastCommit().getHeight(); row++) {
+			for (int col = 0; col < lastCommit().getWidth(); col++) {
+				int preColor = lastCommit().getRGB(col, row);
 				RGB preRGB = new RGB(preColor);
 				preRGB.approxMod(length);
 				image.setRGB(col, row, preRGB.toInt());
 			}
 		}
+		getDll().add(image);
 		changed();
 	}
 	
@@ -190,7 +218,7 @@ public class Image extends Observable {
 						}
 					}
 				}
-				image.setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
+				get().setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
 			}
 		}
 		changed();
@@ -260,6 +288,7 @@ public class Image extends Observable {
 	private void changed() {
 		setChanged();
 		notifyObservers();
+		System.out.println(getDll());
 	}
 	
 	public static double log2(double value) {
@@ -268,11 +297,23 @@ public class Image extends Observable {
 		return Math.log(value) / Math.log(2);
 	}
 	
-	public BufferedImage 	get() { return image; }
+	public BufferedImage 	get() { return dll.getCurrent().getValue(); }
 	public String 			getPath() { return path; }
 	public BufferedImage 	getOriginal() { return original; }
-	public void set(BufferedImage image) 			{ this.image = image; }
+	//public void set(BufferedImage image) 			{ this.image = image; }
 	public void setPath(String path) 				{ this.path = path; }
 	public void setOriginal(BufferedImage original) 	{ this.original = original; }
+	
+	private BufferedImage lastCommit() {
+		return getDll().lastCommit().getValue();
+	}
+
+	public DLL<BufferedImage> getDll() {
+		return dll;
+	}
+
+	public void setDll(DLL<BufferedImage> dll) {
+		this.dll = dll;
+	}
 
 }

@@ -1,4 +1,4 @@
-package aux;
+package graph;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

@@ -8,7 +8,7 @@ import imageFrame.ImageFrame;
 import utils.ImageUtils;
 
 public class ImageProcessor {
-	
+
 	/**
 	 * Launch the application.
 	 */

@@ -15,7 +15,7 @@ public class MousePixelListener implements MouseMotionListener {
 		setPanel(panel);
 		setImage(image);
 	}
-	
+
 	public MousePixelListener(MousePixelListener mousePixelListener) {
 		setPanel(mousePixelListener.getPanel());
 	}
@@ -28,10 +28,10 @@ public class MousePixelListener implements MouseMotionListener {
 	public void mouseMoved(MouseEvent e) {
 		int x = e.getX();
 		int y = e.getY();
-		if(x > image.getWidth() || x < 0 || y > image.getHeight() || y < 0)
+		if (x > image.getWidth() || x < 0 || y > image.getHeight() || y < 0)
 			return;
 		getPanel().setColor(image.get().getRGB(x, y), x, y);
-		//getPanel().repaint();
+		// getPanel().repaint();
 	}
 
 	public PixelColorPanel getPanel() {

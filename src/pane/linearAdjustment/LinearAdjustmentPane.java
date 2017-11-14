@@ -23,26 +23,28 @@ public class LinearAdjustmentPane extends Pane {
 	public final static int MAX_CONTRAST = 510;
 
 	private JSpinner spinnerBrightness, spinerContrast;
-	
+
 	private double brightness, contrast;
 
 	public LinearAdjustmentPane(Image image) {
 		super(image);
-		
+
 		brightness = getImage().brightness();
 		contrast = getImage().contrast();
-		
+
 		setLayout(new BorderLayout());
 		JPanel panel = new JPanel(new GridLayout(2, 1));
 
 		setSpinnerBrightness(new JSpinner(new SpinnerNumberModel(brightness, MIN_BRIGHTNESS, MAX_BRIGHTNESS, 1)));
 		getSpinnerBrightness().setBorder(BorderFactory.createTitledBorder("Brightness"));
-		((JSpinner.DefaultEditor)getSpinnerBrightness().getEditor()).getTextField().setHorizontalAlignment(SwingConstants.CENTER);
+		((JSpinner.DefaultEditor) getSpinnerBrightness().getEditor()).getTextField()
+				.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(spinnerBrightness);
-		
+
 		setSpinerContrast(new JSpinner(new SpinnerNumberModel(contrast, MIN_CONTRAST, MAX_CONTRAST, 1)));
 		getSpinerContrast().setBorder(BorderFactory.createTitledBorder("Contrast"));
-		((JSpinner.DefaultEditor)getSpinerContrast().getEditor()).getTextField().setHorizontalAlignment(SwingConstants.CENTER);
+		((JSpinner.DefaultEditor) getSpinerContrast().getEditor()).getTextField()
+				.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(spinerContrast);
 
 		add(panel, BorderLayout.CENTER);
@@ -52,27 +54,38 @@ public class LinearAdjustmentPane extends Pane {
 				refreshBrCn();
 			}
 		});
-		
+
 		getSpinerContrast().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent evt) {
 				refreshBrCn();
 			}
 		});
-		
-		//setFocusable(false);
+
+		// setFocusable(false);
 		getSpinnerBrightness().setFocusable(false);
 		getSpinerContrast().setFocusable(false);
 	}
-	
+
 	private void refreshBrCn() {
-		double contrast = (Double)spinerContrast.getValue();
-		double offset = (Double)spinnerBrightness.getValue();
+		double contrast = (Double) spinerContrast.getValue();
+		double offset = (Double) spinnerBrightness.getValue();
 		getImage().adjustment(offset, contrast);
 	}
 
-	public JSpinner getSpinnerBrightness() { return spinnerBrightness; }
-	public JSpinner getSpinerContrast() { return spinerContrast; }
-	public void setSpinnerBrightness(JSpinner spinnerBrightness) 	{ this.spinnerBrightness = spinnerBrightness; }
-	public void setSpinerContrast(JSpinner spinerContrast) 		{ this.spinerContrast = spinerContrast; }
+	public JSpinner getSpinnerBrightness() {
+		return spinnerBrightness;
+	}
+
+	public JSpinner getSpinerContrast() {
+		return spinerContrast;
+	}
+
+	public void setSpinnerBrightness(JSpinner spinnerBrightness) {
+		this.spinnerBrightness = spinnerBrightness;
+	}
+
+	public void setSpinerContrast(JSpinner spinerContrast) {
+		this.spinerContrast = spinerContrast;
+	}
 
 }

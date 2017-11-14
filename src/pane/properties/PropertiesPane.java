@@ -17,12 +17,13 @@ import image.Pane;
 @SuppressWarnings("serial")
 public class PropertiesPane extends Pane implements Observer {
 
-	private JLabel categFormat, categResolution, categRange, categBrightness, categContrast, categDynRange, categEntropy;
+	private JLabel categFormat, categResolution, categRange, categBrightness, categContrast, categDynRange,
+			categEntropy;
 
 	public PropertiesPane(Image image) {
 		super(image);
 		setLayout(new GridLayout(7, 1));
-		
+
 		categFormat = new JLabel(getImage().getFormat());
 		categFormat.setBorder(BorderFactory.createTitledBorder("Format"));
 		categFormat.setHorizontalAlignment(SwingConstants.CENTER);
@@ -41,7 +42,7 @@ public class PropertiesPane extends Pane implements Observer {
 		categRange.setHorizontalAlignment(SwingConstants.CENTER);
 		categRange.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categRange);
-		
+
 		categBrightness = new JLabel(String.valueOf(getImage().brightness()));
 		categBrightness.setBorder(BorderFactory.createTitledBorder("Brightness"));
 		categBrightness.setHorizontalAlignment(SwingConstants.CENTER);
@@ -53,38 +54,38 @@ public class PropertiesPane extends Pane implements Observer {
 		categContrast.setHorizontalAlignment(SwingConstants.CENTER);
 		categContrast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categContrast);
-		
+
 		categDynRange = new JLabel(String.valueOf(getImage().dynamicRange()));
 		categDynRange.setBorder(BorderFactory.createTitledBorder("Dynamic Range"));
 		categDynRange.setHorizontalAlignment(SwingConstants.CENTER);
 		categDynRange.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categDynRange);
-		
+
 		categEntropy = new JLabel(String.valueOf(getImage().shannonEntropy()));
 		categEntropy.setBorder(BorderFactory.createTitledBorder("Entropy"));
 		categEntropy.setHorizontalAlignment(SwingConstants.CENTER);
 		categEntropy.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categEntropy);
-		
+
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if(!isVisible())
+		if (!isVisible())
 			return;
-		//categFormat.setText(getImage().getFormat());
+		// categFormat.setText(getImage().getFormat());
 
 		categResolution.setText(getImage().getResolution());
 
 		categRange.setText("[" + getImage().grayRange().x + " - " + getImage().grayRange().y + "]");
-		
+
 		categBrightness.setText(String.valueOf(getImage().brightness()));
 
 		categContrast.setText(String.valueOf(getImage().contrast()));
-		
+
 		categDynRange.setText(String.valueOf(getImage().dynamicRange()));
-		
+
 		categEntropy.setText(String.valueOf(getImage().shannonEntropy()));
 	}
 

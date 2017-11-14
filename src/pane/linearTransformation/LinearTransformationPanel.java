@@ -32,11 +32,11 @@ public class LinearTransformationPanel extends Panel {
 	private static final Stroke GRAPH_STROKE = new BasicStroke(3f);
 	private static final int GRAPH_POINT_WIDTH = 12;
 	private static final int Y_HATCH_CNT = 10;
-	//private List<Node> nodes;
+	// private List<Node> nodes;
 	private NodeList nodes;
 	private boolean drag;
 	private Node dragNode;
-	
+
 	public LinearTransformationPanel() {
 		this.nodes = new NodeList();
 		Node start = new Node(0, 0, false, false, false);
@@ -47,30 +47,32 @@ public class LinearTransformationPanel extends Panel {
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent me) {
 				Point p = magnetCoordinates(me.getX(), me.getY());
-				if(!isWithinBounds(p))
+				if (!isWithinBounds(p))
 					return;
-				
+
 				Node node = getNode(p.x, p.y);
-				if(node != null/* && node.isMoveable()*/) {
+				if (node != null/* && node.isMoveable() */) {
 					drag = true;
 					dragNode = node;
 				}
 				repaint();
 			}
+
 			public void mouseClicked(MouseEvent me) {
 				Point p = magnetCoordinates(me.getX(), me.getY());
-				if(!isWithinBounds(p))
+				if (!isWithinBounds(p))
 					return;
-				
+
 				Node node = getNode(p.x, p.y);
-				if(SwingUtilities.isRightMouseButton(me) && node != null && node.isDeleteable())
+				if (SwingUtilities.isRightMouseButton(me) && node != null && node.isDeleteable())
 					deleteNode(node);
-				else if(SwingUtilities.isRightMouseButton(me))
+				else if (SwingUtilities.isRightMouseButton(me))
 					return;
 				else if (node == null)
 					addNode(p.x, p.y);
 				repaint();
 			}
+
 			public void mouseReleased(MouseEvent me) {
 				drag = false;
 			}
@@ -78,14 +80,14 @@ public class LinearTransformationPanel extends Panel {
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent me) {
 				Point p = magnetCoordinates(me.getX(), me.getY());
-				if(!isWithinBounds(p))
+				if (!isWithinBounds(p))
 					return;
-				if(drag)
+				if (drag)
 					moveNode(dragNode, p.x, p.y);
 				repaint();
 			}
 		});
-		//setFocusable(true);
+		// setFocusable(true);
 	}
 
 	@Override
@@ -131,12 +133,10 @@ public class LinearTransformationPanel extends Panel {
 		graphPoints.sort(new Comparator<Point>() {
 			@Override
 			public int compare(Point o1, Point o2) {
-				return 		o1.x < o2.x ? -1
-				       : 	o1.x > o2.x ? 1
-				       : 	0;
+				return o1.x < o2.x ? -1 : o1.x > o2.x ? 1 : 0;
 			}
 		});
-		
+
 		Stroke oldStroke = g2.getStroke();
 		g2.setColor(GRAPH_COLOR);
 		g2.setStroke(GRAPH_STROKE);
@@ -157,7 +157,7 @@ public class LinearTransformationPanel extends Panel {
 			int ovalH = GRAPH_POINT_WIDTH;
 			g2.fillOval(x, y, ovalW, ovalH);
 		}
-		
+
 	}
 
 	@Override
@@ -168,9 +168,9 @@ public class LinearTransformationPanel extends Panel {
 	public boolean isWithinBounds(Point p) {
 		return isWithinBounds(p.x, p.y);
 	}
-	
+
 	public boolean isWithinBounds(int x, int y) {
-		if(x >= MAX_SCORE || y >= MAX_SCORE || x < 0 || y < 0)
+		if (x >= MAX_SCORE || y >= MAX_SCORE || x < 0 || y < 0)
 			return false;
 		return true;
 	}
@@ -182,21 +182,21 @@ public class LinearTransformationPanel extends Panel {
 		int yF = (int) (MAX_SCORE - ((y - BORDER_GAP) / yScale));
 		return new Point(xF, yF);
 	}
-	
+
 	public Point magnetCoordinates(int x, int y) {
 		double xScale = ((double) getWidth() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
 		double yScale = ((double) getHeight() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
 		double xF = (x - BORDER_GAP) / xScale;
 		double yF = MAX_SCORE - ((y - BORDER_GAP) / yScale);
-		int i = (int)(xF);
-		int j = (int)(yF);
-		if((xF - (int)(xF)) > 0.5)
+		int i = (int) (xF);
+		int j = (int) (yF);
+		if ((xF - (int) (xF)) > 0.5)
 			i++;
-		if((yF - (int)(yF)) > 0.5)
+		if ((yF - (int) (yF)) > 0.5)
 			j++;
 		return new Point(i, j);
 	}
-	
+
 	public Point translateCoordinatesIntToDouble(int x, int y) {
 		double xScale = ((double) getWidth() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
 		double yScale = ((double) getHeight() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
@@ -211,16 +211,16 @@ public class LinearTransformationPanel extends Panel {
 	}
 
 	public void moveNode(Node node, int x, int y) {
-		if(x >= MAX_SCORE || y >= MAX_SCORE || x < 0 || y < 0)
+		if (x >= MAX_SCORE || y >= MAX_SCORE || x < 0 || y < 0)
 			return;
-		if(node.isMoveable())
+		if (node.isMoveable())
 			node.setCoordinates(x, y);
 		else
 			node.setCoordinates(node.getX(), y);
 		nodes.sort();
 		nodes.manualNotify();
 	}
-	
+
 	public void deleteNode(Node node) {
 		nodes.remove(node);
 	}
@@ -233,11 +233,11 @@ public class LinearTransformationPanel extends Panel {
 		}
 		return null;
 	}
-	
-	public NodeList getNodes() { 
+
+	public NodeList getNodes() {
 		return this.nodes;
 	}
-	
+
 	public List<FunctionSegment> getFunctions() {
 		Collections.sort(nodes.getList());
 		List<FunctionSegment> list = new ArrayList<FunctionSegment>();

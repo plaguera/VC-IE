@@ -29,7 +29,7 @@ public class HistogramPane extends Pane implements Observer {
 
 	private ChartPanel red, green, blue, gray, cumulative, normalized;
 	JTabbedPane tabbedPane;
-	
+
 	public HistogramPane(Image image) {
 		super(image);
 		LUT lut = new LUT(getImage());
@@ -37,9 +37,11 @@ public class HistogramPane extends Pane implements Observer {
 		green = new ChartPanel(createChart(createDataset(int2double(lut.greenCount2()), "Green"), Color.GREEN));
 		blue = new ChartPanel(createChart(createDataset(int2double(lut.blueCount2()), "Blue"), Color.BLUE));
 		gray = new ChartPanel(createChart(createDataset(int2double(lut.grayCount2()), "Gray"), Color.DARK_GRAY));
-		cumulative = new ChartPanel(createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
-		normalized = new ChartPanel(createChart(createDataset(int2double(lut.grayCount2()), "Normalized (Gray)"), Color.GRAY));
-		
+		cumulative = new ChartPanel(
+				createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
+		normalized = new ChartPanel(
+				createChart(createDataset(int2double(lut.grayCount2()), "Normalized (Gray)"), Color.GRAY));
+
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.addTab("Red", red);
 		tabbedPane.addTab("Green", green);
@@ -48,46 +50,47 @@ public class HistogramPane extends Pane implements Observer {
 		tabbedPane.addTab("Cumulative", cumulative);
 		tabbedPane.addTab("Normalized", normalized);
 		add(tabbedPane);
-		
+
 		setPreferredSize(new java.awt.Dimension(256, 256));
 	}
-	
+
 	private void refreshDatasets() {
 		LUT lut = new LUT(getImage());
 		red.setChart(createChart(createDataset(int2double(lut.redCount2()), "Red"), Color.RED));
 		green.setChart(createChart(createDataset(int2double(lut.greenCount2()), "Green"), Color.GREEN));
 		blue.setChart(createChart(createDataset(int2double(lut.blueCount2()), "Blue"), Color.BLUE));
 		gray.setChart(createChart(createDataset(int2double(lut.grayCount2()), "Gray"), Color.DARK_GRAY));
-		cumulative.setChart(createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
+		cumulative.setChart(
+				createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
 		normalized.setChart(createChart(createDataset(int2double(lut.grayCount2()), "Normalized (Gray)"), Color.GRAY));
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
+
 	}
-	
+
 	private IntervalXYDataset createDataset(double[] values, String title) {
 		HistogramDataset dataset = new HistogramDataset();
-		if(title.equals("Cumulative (Gray)"))
+		if (title.equals("Cumulative (Gray)"))
 			dataset.setType(HistogramType.RELATIVE_FREQUENCY);
-		if(title.equals("Normalized (Gray)"))
+		if (title.equals("Normalized (Gray)"))
 			dataset.setType(HistogramType.SCALE_AREA_TO_1);
 		dataset.addSeries(title, values, 256);
 		return dataset;
 	}
-	
+
 	private static double[] int2double(int[] values) {
 		double[] aux = new double[values.length];
-		for(int i = 0; i < values.length; i++)
+		for (int i = 0; i < values.length; i++)
 			aux[i] = values[i];
 		return aux;
-	}	
+	}
 
 	private static JFreeChart createChart(IntervalXYDataset dataset, Color color) {
-		JFreeChart chart = ChartFactory.createHistogram("", null, null, dataset,
-				PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart chart = ChartFactory.createHistogram("", null, null, dataset, PlotOrientation.VERTICAL, true, true,
+				false);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDomainPannable(true);
 		plot.setRangePannable(true);

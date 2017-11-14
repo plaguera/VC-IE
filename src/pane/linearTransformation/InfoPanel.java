@@ -41,12 +41,12 @@ public class InfoPanel extends JPanel implements Observer {
 		for (FunctionSegment segment : segments) {
 			// System.out.println(segment);
 			JPanel aux = new JPanel(new GridLayout(1, 1));
-			//JLabel lb1 = new JLabel(segment.stringFunction());
+			// JLabel lb1 = new JLabel(segment.stringFunction());
 			JLabel lb2 = new JLabel(segment.stringPoints());
-			//lb1.setHorizontalAlignment(SwingConstants.CENTER);
+			// lb1.setHorizontalAlignment(SwingConstants.CENTER);
 			lb2.setHorizontalAlignment(SwingConstants.CENTER);
 			aux.setBorder(new LineBorder(Color.LIGHT_GRAY));
-			//aux.add(lb1);
+			// aux.add(lb1);
 			aux.add(lb2);
 			add(aux);
 		}
@@ -62,7 +62,8 @@ public class InfoPanel extends JPanel implements Observer {
 	}
 
 	/**
-	 * @param segments the segments to set
+	 * @param segments
+	 *            the segments to set
 	 */
 	public void setSegments(List<FunctionSegment> segments) {
 		this.segments = segments;

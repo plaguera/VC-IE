@@ -2,7 +2,7 @@ package pane.linearTransformation;
 
 import java.awt.Point;
 
-public	 class Node implements Comparable<Node> {
+public class Node implements Comparable<Node> {
 	private int x, y;
 	private boolean isSelected, isMoveable, isDeleteable;
 
@@ -61,11 +61,11 @@ public	 class Node implements Comparable<Node> {
 		setX(x);
 		setY(y);
 	}
-	
+
 	public Point getCoordinates() {
 		return new Point(getX(), getY());
 	}
-	
+
 	public String toString() {
 		return "Node (" + this.hashCode() + ") = (" + getX() + ", " + getY() + ")";
 	}

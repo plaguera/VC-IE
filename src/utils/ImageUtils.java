@@ -42,7 +42,7 @@ public class ImageUtils {
 		}
 		return aux;
 	}
-	
+
 	public static File openImage() {
 		JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		jfc.setDialogTitle("Select an image");
@@ -94,7 +94,7 @@ public class ImageUtils {
 				image.setRGB(i, j, newColor.getRGB());
 			}
 	}
-	
+
 	public static BufferedImage rgbToGrayscaleCopy(BufferedImage original) {
 		BufferedImage image = copyImage(original);
 		for (int i = 0; i < image.getWidth(); i++)
@@ -108,7 +108,7 @@ public class ImageUtils {
 			}
 		return image;
 	}
-	
+
 	public static BufferedImage copyImage(BufferedImage original) {
 		BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
 		Graphics g = image.getGraphics();
@@ -137,7 +137,7 @@ public class ImageUtils {
 						break;
 					}
 				}
-				
+
 				image.setRGB(col, row, ColorUtils.rgbToInt(value, value, value));
 			}
 		}
@@ -190,22 +190,20 @@ public class ImageUtils {
 	}
 
 	public static double contrast(BufferedImage image) {
-		int[] aux = new int[image.getWidth()*image.getHeight()];
+		int[] aux = new int[image.getWidth() * image.getHeight()];
 		int k = 0;
 		for (int row = 0; row < image.getHeight(); row++)
 			for (int col = 0; col < image.getWidth(); col++)
 				aux[k++] = ImageUtils.brightness(image.getRGB(col, row));
 		double sum = 0.0, standardDeviation = 0.0;
-        for(int num : aux)
-            sum += num;
-        double mean = sum/aux.length;
+		for (int num : aux)
+			sum += num;
+		double mean = sum / aux.length;
 
-        for(int num: aux)
-            standardDeviation += Math.pow(num - mean, 2);
-		return Math.sqrt(standardDeviation/aux.length);
+		for (int num : aux)
+			standardDeviation += Math.pow(num - mean, 2);
+		return Math.sqrt(standardDeviation / aux.length);
 	}
-	
-	
 
 	public static double brightness(BufferedImage image) {
 		int sum = 0;
@@ -232,16 +230,16 @@ public class ImageUtils {
 		int b = (int) (Math.pow(c[2], 2) * NTSC_BLUE);
 		return (int) Math.sqrt(r + g + b);
 	}
-	
+
 	public static int gamma(int color, double gamma) {
 		int[] rgb = ColorUtils.intToRGB(color);
 		double gammaCorrection = 1 / gamma;
-		int r = (int) (255 * Math.pow((double)(rgb[0] / 255d), gammaCorrection));
-		int g = (int) (255 * Math.pow((double)(rgb[1] / 255d), gammaCorrection));
-		int b = (int) (255 * Math.pow((double)(rgb[2] / 255d), gammaCorrection));
+		int r = (int) (255 * Math.pow((double) (rgb[0] / 255d), gammaCorrection));
+		int g = (int) (255 * Math.pow((double) (rgb[1] / 255d), gammaCorrection));
+		int b = (int) (255 * Math.pow((double) (rgb[2] / 255d), gammaCorrection));
 		return ColorUtils.rgbToInt(r, g, b);
 	}
-	
+
 	public static int brighten(int color, int offset) {
 		int[] rgb = ColorUtils.intToRGB(color);
 		rgb[0] = truncate(rgb[0] + offset);
@@ -266,7 +264,7 @@ public class ImageUtils {
 			value = 255;
 		return value;
 	}
-	
+
 	public static double truncate(double value) {
 		if (value < 0)
 			value = 0;
@@ -274,24 +272,24 @@ public class ImageUtils {
 			value = 255;
 		return value;
 	}
-	
+
 	public static void launchFrame(Frame frame) {
-		//frame.setResizable(false);
-		//Fullscreen.enableOSXFullscreen(frame);
+		// frame.setResizable(false);
+		// Fullscreen.enableOSXFullscreen(frame);
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
-		//frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		//Fullscreen.requestToggleFullScreen(frame);
+		// frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		// Fullscreen.requestToggleFullScreen(frame);
 	}
-	
+
 	public static BufferedImage subImage(BufferedImage image, int x, int y, int w, int h) {
 		return image.getSubimage(x, y, w, h);
 	}
-	
+
 	public static ImageFrame getImageFrame(Component c) {
 		JFrame frame = (JFrame) SwingUtilities.getRoot(c);
-		if(frame instanceof ImageFrame)
-			return (ImageFrame)frame;
+		if (frame instanceof ImageFrame)
+			return (ImageFrame) frame;
 		return null;
 	}
 

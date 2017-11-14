@@ -24,12 +24,12 @@ public class LinearTranformationPane extends Pane {
 		setPanel(new LinearTransformationPanel());
 		getPanel().getNodes().addObserver(info);
 
-		//setFocusable(true);
+		// setFocusable(true);
 		add(getPanel(), BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(info);
-		scrollPane.setPreferredSize(new Dimension(200,100));
+		scrollPane.setPreferredSize(new Dimension(200, 100));
 		add(scrollPane, BorderLayout.SOUTH);
-		/*getPanel().*/addKeyListener(new KeyListener() {
+		/* getPanel(). */addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -46,7 +46,7 @@ public class LinearTranformationPane extends Pane {
 			}
 		});
 	}
-	
+
 	@Override
 	public Dimension getPreferredSize() {
 		return getPanel().getPreferredSize();
@@ -67,6 +67,5 @@ public class LinearTranformationPane extends Pane {
 	public void setInfo(InfoPanel info) {
 		this.info = info;
 	}
-	
 
 }

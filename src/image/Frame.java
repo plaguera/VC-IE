@@ -11,15 +11,22 @@ public class Frame extends JFrame {
 
 	public Frame(ImageFrame parent) {
 		setParent(parent);
-		//setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		if(getParent() != null)
+		// setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		if (getParent() != null)
 			setTitle(getParent().getTitle());
 	}
 
 	@Override
-	public ImageFrame getParent() { return parent; }
-	public void setParent(ImageFrame parent) { this.parent = parent; }
-	public void showParent() { parent.setVisible(true); }
-	
-	
+	public ImageFrame getParent() {
+		return parent;
+	}
+
+	public void setParent(ImageFrame parent) {
+		this.parent = parent;
+	}
+
+	public void showParent() {
+		parent.setVisible(true);
+	}
+
 }

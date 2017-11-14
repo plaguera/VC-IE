@@ -75,7 +75,7 @@ public class PropertiesPane extends Pane implements Observer {
 			return;
 		//categFormat.setText(getImage().getFormat());
 
-		//categResolution.setText(getImage().getResolution());
+		categResolution.setText(getImage().getResolution());
 
 		categRange.setText("[" + getImage().grayRange().x + " - " + getImage().grayRange().y + "]");
 		

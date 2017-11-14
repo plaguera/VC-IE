@@ -3,6 +3,7 @@ package image;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -22,21 +23,18 @@ public class Image extends Observable {
 	
 	public Image(String path) {
 		setPath(path);
-		//set(ImageUtils.readImage(getPath()));
 		setDll(new DLL<BufferedImage>(ImageUtils.readImage(getPath())));
 		setOriginal(ImageUtils.readImage(getPath()));
 	}
 	
 	public Image(Image image) {
 		setPath(image.getPath());
-		//set(ImageUtils.copyImage(image.get()));
 		setDll(new DLL<BufferedImage>(get()));
 		setOriginal(ImageUtils.copyImage(image.get()));
 	}
 	
 	public Image(BufferedImage image, String path) {
 		setPath(path);
-		//set(ImageUtils.copyImage(image));
 		setDll(new DLL<BufferedImage>(get()));
 		setOriginal(ImageUtils.copyImage(image));
 	}
@@ -220,6 +218,68 @@ public class Image extends Observable {
 				if(rgb[col][row].gray() >= threshold)
 					aux.setRGB(col, row, Color.RED.getRGB());
 		return new Image(aux, getPath());
+	}
+	
+	public void flipHorizontally() {
+		BufferedImage image = ImageUtils.copyImage(get());
+		for (int row = 0; row < image.getHeight(); row++) {
+			for (int col = 0; col < image.getWidth(); col++) {
+				int color = get().getRGB(col, row);
+				image.setRGB((image.getWidth() - col - 1), row, color);
+			}
+		}
+		getDll().add(image);
+		changed();
+	}
+	
+	public void flipVertically() {
+		BufferedImage image = ImageUtils.copyImage(get());
+		for (int row = 0; row < image.getHeight(); row++) {
+			for (int col = 0; col < image.getWidth(); col++) {
+				int color = get().getRGB(col, row);
+				image.setRGB(col, (image.getHeight() - row - 1), color);
+			}
+		}
+		getDll().add(image);
+		changed();
+	}
+	
+	public void transpose() {
+		BufferedImage image = new BufferedImage(get().getHeight(), get().getWidth(), get().getType());
+		for (int row = 0; row < get().getHeight(); row++) {
+			for (int col = 0; col < get().getWidth(); col++) {
+				int color = get().getRGB(col, row);
+				image.setRGB(row, col, color);
+			}
+		}
+		getDll().add(image);
+		changed();
+	}
+	
+	public void rotate(int angle) {
+		if(angle % 90 != 0)
+			return;
+		int n = angle / 90;
+		int i = n % 4;
+		switch(i) {
+			case 0: break;
+			case 1: transpose(); flipHorizontally(); break;
+			case 2: flipVertically(); break;
+			case 3: transpose(); break;
+		}
+	}
+	
+	public void scale(double percentage) {
+		int newW = (int) (percentage * lastCommit().getWidth());
+		int newH = (int) (percentage * lastCommit().getHeight());
+		java.awt.Image img = lastCommit().getScaledInstance(newW, newH, java.awt.Image.SCALE_DEFAULT);
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+	    Graphics2D bGr = bimage.createGraphics();
+	    bGr.drawImage(img, 0, 0, null);
+	    bGr.dispose();
+	    getDll().add(bimage);
+		changed();
 	}
 	
 	public double brightness() {

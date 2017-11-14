@@ -15,7 +15,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -31,8 +35,8 @@ import utils.ImageUtils;
 public class ImageFrame extends Frame implements Observer {
 	
 	private JMenuBar menuBar;
-	private JMenu mnFile, mnEdit, mnView;
-	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo;
+	private JMenu mnFile, mnEdit, mnView, mnGeometric;
+	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo, mntmFlipH, mntmFlipV, mntmTrans, mntmRotate, mntmScale;
 
 	private Image image;
 	private JTabbedPane tabbedPane;
@@ -94,11 +98,13 @@ public class ImageFrame extends Frame implements Observer {
 		setMnFile(new JMenu("File"));
 		setMnEdit(new JMenu("Edit"));
 		setMnView(new JMenu("View"));
+		setMnGeometric(new JMenu("Geometric Operations"));
 		setJMenuBar(getMenu());
 		
 		getMenu().add(getMnFile());
 		getMenu().add(getMnEdit());
 		getMenu().add(getMnView());
+		getMenu().add(getMnGeometric());
 		
 		setMntmOpen(new JMenuItem("Open..."));
 		setMntmSave(new JMenuItem("Save..."));
@@ -107,6 +113,15 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmShowHideProp(new JMenuItem("Show / Hide Properties"));
 		setMntmUndo(new JMenuItem("Undo"));
 		setMntmRedo(new JMenuItem("Redo"));
+		setMntmFlipH(new JMenuItem("Flip Horizontally"));
+		setMntmFlipV(new JMenuItem("Flip Vertically"));
+		setMntmTrans(new JMenuItem("Transpose"));
+		setMntmRotate(new JMenuItem("Rotate..."));
+		setMntmScale(new JMenuItem("Scale..."));
+		
+		getMntmOpen().setIcon(UIManager.getIcon("FileView.fileIcon"));
+		getMntmSave().setIcon(UIManager.getIcon("FileChooser.floppyDriveIcon"));
+		getMntmUndo().setIcon(UIManager.getIcon("AbstractUndoableEdit.undoText"));
 		
 		getMnFile().add(getMntmOpen());
 		getMnFile().add(getMntmSave());
@@ -117,6 +132,12 @@ public class ImageFrame extends Frame implements Observer {
 		getMnEdit().add(getMntmRedo());
 		
 		getMnView().add(getMntmShowHideProp());
+		
+		getMnGeometric().add(getMntmFlipH());
+		getMnGeometric().add(getMntmFlipV());
+		getMnGeometric().add(getMntmTrans());
+		getMnGeometric().add(getMntmRotate());
+		getMnGeometric().add(getMntmScale());
 		
 		getMntmOpen().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -177,6 +198,50 @@ public class ImageFrame extends Frame implements Observer {
 				getImage().ctrlY();
 			}
 		});
+		
+		getMntmFlipH().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().flipHorizontally();
+			}
+		});
+		
+		getMntmFlipV().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().flipVertically();
+			}
+		});
+		
+		getMntmTrans().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().transpose();
+			}
+		});
+		
+		getMntmRotate().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SpinnerNumberModel sModel = new SpinnerNumberModel(0, 0, 3600, 90);
+				JSpinner spinner = new JSpinner(sModel);
+				JOptionPane.showMessageDialog(null, spinner);
+				getImage().rotate((Integer) spinner.getValue());
+			}
+		});
+		ImageFrame frame = this;
+		getMntmScale().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SpinnerNumberModel sModel = new SpinnerNumberModel(100, 0, 500, 1);
+				JSpinner spinner = new JSpinner(sModel);
+				JOptionPane.showMessageDialog(null, spinner);
+				getImage().scale((double)((Integer) spinner.getValue()) / 100);
+				System.out.println(getImage().getSize());
+				//getImagePane().repaint();
+				frame.repaint();
+				frame.getImagePane().repaint();
+				frame.pack();
+				frame.repaint();
+				frame.getImagePane().repaint();
+			}
+		});
+		
 		setFocusable(true);
 		addKeyListener(new KeyListener() {
 			@Override
@@ -186,6 +251,8 @@ public class ImageFrame extends Frame implements Observer {
 				}
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
 					getImage().ctrlY();
+				}
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 				}
 			}
 
@@ -213,6 +280,14 @@ public class ImageFrame extends Frame implements Observer {
 	public JMenuItem 		getMntmToGrayscale() { return mntmToGrayscale; }
 	public JMenuItem 		getMntmShowHideProp() { return mntmShowHideProp; }
 	public PropertiesPane 	getPropertiesPane() { return propertiesPane; }
+	public JMenuItem 		getMntmUndo() { return mntmUndo; }
+	public JMenuItem 		getMntmRedo() { return mntmRedo; }
+	public JMenu 			getMnGeometric() { return mnGeometric; }
+	public JMenuItem 		getMntmFlipH() { return mntmFlipH; }
+	public JMenuItem 		getMntmFlipV() { return mntmFlipV; }
+	public JMenuItem 		getMntmTrans() { return mntmTrans; }
+	public JMenuItem 		getMntmRotate() { return mntmRotate; }
+	public JMenuItem 		getMntmScale() { return mntmScale; }
 	public void setImage(Image image) 							{ this.image = image; }
 	public void setTabbedPane(JTabbedPane tabbedPane) 			{ this.tabbedPane = tabbedPane; }
 	public void setImagePane(ImagePane imagePane) 				{ this.imagePane = imagePane; }
@@ -227,26 +302,19 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMntmToGrayscale(JMenuItem mntmToGrayscale) 	{ this.mntmToGrayscale = mntmToGrayscale; }
 	public void setMntmShowHideProp(JMenuItem mntmShowHideProp) 	{ this.mntmShowHideProp = mntmShowHideProp; }
 	public void setPropertiesPane(PropertiesPane propertiesPane) 	{ this.propertiesPane = propertiesPane; }
-
-	public JMenuItem getMntmUndo() {
-		return mntmUndo;
-	}
-
-	public void setMntmUndo(JMenuItem mntmUndo) {
-		this.mntmUndo = mntmUndo;
-	}
-
-	public JMenuItem getMntmRedo() {
-		return mntmRedo;
-	}
-
-	public void setMntmRedo(JMenuItem mntmRedo) {
-		this.mntmRedo = mntmRedo;
-	}
+	public void setMntmFlipH(JMenuItem mntmFlipH) 				{ this.mntmFlipH = mntmFlipH; }
+	public void setMntmFlipV(JMenuItem mntmFlipV) 				{ this.mntmFlipV = mntmFlipV; }
+	public void setMntmTrans(JMenuItem mntmTrans) 				{ this.mntmTrans = mntmTrans; }
+	public void setMntmRotate(JMenuItem mntmRotate) 				{ this.mntmRotate = mntmRotate; }
+	public void setMntmScale(JMenuItem mtnmScale) 				{ this.mntmScale = mtnmScale; }
+	public void setMntmUndo(JMenuItem mntmUndo) 					{ this.mntmUndo = mntmUndo; }
+	public void setMntmRedo(JMenuItem mntmRedo) 					{ this.mntmRedo = mntmRedo; }
+	public void setMnGeometric(JMenu mnGeometric) 				{ this.mnGeometric = mnGeometric; }
 
 	@Override
-	public void update(Observable o, Object arg) {
-		getImagePane().getImagePanel().repaint();
-	}
+	public void update(Observable o, Object arg) { getImagePane().getImagePanel().repaint(); }
+
+
+	
 
 }

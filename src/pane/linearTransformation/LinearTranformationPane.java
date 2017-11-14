@@ -20,13 +20,16 @@ public class LinearTranformationPane extends Pane {
 	public LinearTranformationPane(Image image) {
 		super(image);
 		info = new InfoPanel();
+		setLayout(new BorderLayout());
 		setPanel(new LinearTransformationPanel());
 		getPanel().getNodes().addObserver(info);
 
-		setFocusable(true);
+		//setFocusable(true);
 		add(getPanel(), BorderLayout.CENTER);
-		add(new JScrollPane(info), BorderLayout.SOUTH);
-		getPanel().addKeyListener(new KeyListener() {
+		JScrollPane scrollPane = new JScrollPane(info);
+		scrollPane.setPreferredSize(new Dimension(200,100));
+		add(scrollPane, BorderLayout.SOUTH);
+		/*getPanel().*/addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {

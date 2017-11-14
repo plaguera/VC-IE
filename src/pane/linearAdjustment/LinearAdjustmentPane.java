@@ -32,19 +32,16 @@ public class LinearAdjustmentPane extends Pane {
 		brightness = getImage().brightness();
 		contrast = getImage().contrast();
 		
-		setFocusable(false);
 		setLayout(new BorderLayout());
 		JPanel panel = new JPanel(new GridLayout(2, 1));
 
 		setSpinnerBrightness(new JSpinner(new SpinnerNumberModel(brightness, MIN_BRIGHTNESS, MAX_BRIGHTNESS, 1)));
 		getSpinnerBrightness().setBorder(BorderFactory.createTitledBorder("Brightness"));
-		getSpinnerBrightness().setFocusable(false);
 		((JSpinner.DefaultEditor)getSpinnerBrightness().getEditor()).getTextField().setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(spinnerBrightness);
 		
 		setSpinerContrast(new JSpinner(new SpinnerNumberModel(contrast, MIN_CONTRAST, MAX_CONTRAST, 1)));
 		getSpinerContrast().setBorder(BorderFactory.createTitledBorder("Contrast"));
-		getSpinerContrast().setFocusable(false);
 		((JSpinner.DefaultEditor)getSpinerContrast().getEditor()).getTextField().setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(spinerContrast);
 
@@ -61,6 +58,10 @@ public class LinearAdjustmentPane extends Pane {
 				refreshBrCn();
 			}
 		});
+		
+		//setFocusable(false);
+		getSpinnerBrightness().setFocusable(false);
+		getSpinerContrast().setFocusable(false);
 	}
 	
 	private void refreshBrCn() {

@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.GenericArrayType;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -48,9 +49,8 @@ public class ImagePane extends Panel {
 		getTabbedPane().addTab("Digitalization Simulation", new DigitalizationPane(getImage()));
 		getTabbedPane().addTab("Linear Transformation", new LinearTranformationPane(getImage()));
 		getTabbedPane().addTab("Difference", new DifferencePane(getImage()));
-		getTabbedPane().setFocusable(false);
+		//getTabbedPane().setFocusable(true);
 		getBtnReset().setFocusable(false);
-		
 		getBtnReset().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().reset();
@@ -91,10 +91,6 @@ public class ImagePane extends Panel {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			g.drawImage(image.get(), 0, 0, getWidth(), getHeight(), this);
-		}
-
-		public double getScale() {
-			return (double) ((double) image.getWidth() / (double) getWidth());
 		}
 	}
 

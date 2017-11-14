@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -84,7 +85,7 @@ public class LinearTransformationPanel extends Panel {
 				repaint();
 			}
 		});
-		setFocusable(true);
+		//setFocusable(true);
 	}
 
 	@Override
@@ -235,6 +236,18 @@ public class LinearTransformationPanel extends Panel {
 	
 	public NodeList getNodes() { 
 		return this.nodes;
+	}
+	
+	public List<FunctionSegment> getFunctions() {
+		Collections.sort(nodes.getList());
+		List<FunctionSegment> list = new ArrayList<FunctionSegment>();
+		for (int i = 1; i < nodes.size(); i++) {
+			Node node1 = nodes.get(i - 1);
+			Node node2 = nodes.get(i);
+			list.add(new FunctionSegment(node1.getCoordinates(), node2.getCoordinates()));
+		}
+		Collections.sort(list);
+		return list;
 	}
 
 }

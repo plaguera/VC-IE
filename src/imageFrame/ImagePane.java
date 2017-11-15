@@ -178,6 +178,10 @@ public class ImagePane extends Panel {
 				g.fillOval(getrP2().x - side/2, getrP2().y - side/2, side, side);
 			}
 		}
+		
+		public void setPreferredSize() {
+			setPreferredSize(scaleBack());
+		}
 
 		public Point 	getrP1() { return rP1; }
 		public Point 	getrP2() { return rP2; }

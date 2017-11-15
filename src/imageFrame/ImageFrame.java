@@ -15,10 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -27,6 +24,7 @@ import javax.swing.filechooser.FileSystemView;
 
 import image.Frame;
 import image.Image;
+import pane.geodialog.GeometricDialog;
 import pane.histogram.HistogramPane;
 import pane.properties.PropertiesPane;
 import utils.ImageUtils;
@@ -35,9 +33,9 @@ import utils.ImageUtils;
 public class ImageFrame extends Frame implements Observer {
 
 	private JMenuBar menuBar;
-	private JMenu mnFile, mnEdit, mnView, mnGeometric;
+	private JMenu mnFile, mnEdit, mnView, mnGeometric, mnHistogram;
 	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo, mntmFlipH,
-			mntmFlipV, mntmTrans, mntmRotate, mntmScale, mntmROI, mntmCS;
+			mntmFlipV, mntmTrans, mntmRotate, mntmScale, mntmROI, mntmCS, mntmEQ, mntmEQRGB, mntmSpecify;
 
 	private Image image;
 	private JTabbedPane tabbedPane;
@@ -98,11 +96,13 @@ public class ImageFrame extends Frame implements Observer {
 		setMnEdit(new JMenu("Edit"));
 		setMnView(new JMenu("View"));
 		setMnGeometric(new JMenu("Geometric Operations"));
+		setMnHistogram(new JMenu("Histogram"));
 		setJMenuBar(getMenu());
 
 		getMenu().add(getMnFile());
 		getMenu().add(getMnEdit());
 		getMenu().add(getMnView());
+		getMenu().add(getMnHistogram());
 		getMenu().add(getMnGeometric());
 
 		setMntmOpen(new JMenuItem("Open..."));
@@ -119,6 +119,9 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmScale(new JMenuItem("Scale..."));
 		setMntmROI(new JMenuItem("Region of Interest..."));
 		setMntmCS(new JMenuItem("Cross Section..."));
+		setMntmEQ(new JMenuItem("Equalize Grayscale"));
+		setMntmEQRGB(new JMenuItem("Equalize RGB"));
+		setMntmSpecify(new JMenuItem("Specify..."));
 
 		getMntmOpen().setIcon(UIManager.getIcon("FileView.fileIcon"));
 		getMntmSave().setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
@@ -134,6 +137,10 @@ public class ImageFrame extends Frame implements Observer {
 		getMnEdit().add(getMntmToGrayscale());
 
 		getMnView().add(getMntmShowHideProp());
+		
+		getMnHistogram().add(getMntmSpecify());
+		getMnHistogram().add(getMntmEQRGB());
+		getMnHistogram().add(getMntmEQ());
 
 		getMnGeometric().add(getMntmFlipH());
 		getMnGeometric().add(getMntmFlipV());
@@ -234,28 +241,46 @@ public class ImageFrame extends Frame implements Observer {
 			}
 		});
 
+		ImageFrame frame = this;
+		
 		getMntmRotate().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SpinnerNumberModel sModel = new SpinnerNumberModel(0, 0, 3600, 90);
-				JSpinner spinner = new JSpinner(sModel);
-				JOptionPane.showMessageDialog(null, spinner);
-				getImage().rotate((Integer) spinner.getValue());
-			}
-		});
-		ImageFrame frame = this;
-		getMntmScale().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				SpinnerNumberModel sModel = new SpinnerNumberModel(100, 0, 500, 1);
-				JSpinner spinner = new JSpinner(sModel);
-				JOptionPane.showMessageDialog(null, spinner);
-				getImage().scale((double) ((Integer) spinner.getValue()) / 100);
-				System.out.println(getImage().getSize());
-				// getImagePane().repaint();
-				frame.repaint();
+				double scaleF = GeometricDialog.ROTATE_DIALOG().launch();
+				getImage().rotate((int) scaleF);
+				frame.getImagePane().getImagePanel().setPreferredSize();
 				frame.getImagePane().repaint();
 				frame.pack();
-				frame.repaint();
+			}
+		});
+		
+		getMntmScale().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double scaleF = GeometricDialog.SCALE_DIALOG().launch();
+				getImage().scale(scaleF);
+				frame.getImagePane().getImagePanel().setPreferredSize();
 				frame.getImagePane().repaint();
+				frame.pack();
+			}
+		});
+		
+		getMntmEQ().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().equalize();
+			}
+		});
+		
+		getMntmEQRGB().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().equalizeRGB();
+			}
+		});
+		
+		getMntmSpecify().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File selectedFile = ImageUtils.openImage();
+				if(selectedFile == null)
+					return;
+				getImage().specify(selectedFile.getAbsolutePath());
 			}
 		});
 
@@ -332,6 +357,38 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMntmScale(JMenuItem mtnmScale) { this.mntmScale = mtnmScale; }
 	public void setMntmROI(JMenuItem mntmROI) { this.mntmROI = mntmROI; }
 	public void setMntmCS(JMenuItem mntmCS) { this.mntmCS = mntmCS; }
+
+	public JMenu getMnHistogram() {
+		return mnHistogram;
+	}
+
+	public void setMnHistogram(JMenu mnHistogram) {
+		this.mnHistogram = mnHistogram;
+	}
+
+	public JMenuItem getMntmEQ() {
+		return mntmEQ;
+	}
+
+	public void setMntmEQ(JMenuItem mntmEQ) {
+		this.mntmEQ = mntmEQ;
+	}
+
+	public JMenuItem getMntmEQRGB() {
+		return mntmEQRGB;
+	}
+
+	public void setMntmEQRGB(JMenuItem mntmEQRGB) {
+		this.mntmEQRGB = mntmEQRGB;
+	}
+
+	public JMenuItem getMntmSpecify() {
+		return mntmSpecify;
+	}
+
+	public void setMntmSpecify(JMenuItem mntmSpecify) {
+		this.mntmSpecify = mntmSpecify;
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {

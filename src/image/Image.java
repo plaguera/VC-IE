@@ -13,6 +13,7 @@ import java.util.Observable;
 import pane.linearTransformation.FunctionSegment;
 import utils.ColorUtils;
 import utils.DLL;
+import utils.HistogramUtils;
 import utils.ImageUtils;
 
 public class Image extends Observable {
@@ -147,6 +148,70 @@ public class Image extends Observable {
 		}
 		getDll().add(image);
 		changed();
+	}
+	
+	public void equalize() {
+		BufferedImage image = ImageUtils.copyImage(get());
+		LUT lut = new LUT(image);
+		int[][] gray  = lut.getGrayMatrix();
+		int[] grayAcc = lut.cumulativeCount();
+		int[][] result = equalizeMatrix(grayAcc, gray);
+		for(int i = 0; i < result.length; i++)
+        	for(int j = 0; j < result[i].length; j++)
+        		image.setRGB(i, j, new Color(result[i][j],result[i][j],result[i][j]).getRGB());
+		getDll().add(image);
+		changed();
+	}
+	
+	public void equalizeRGB() {
+		BufferedImage image = ImageUtils.copyImage(get());
+		LUT lut = new LUT(image);
+		int[][] red  = lut.getRedMatrix();
+		int[][] green  = lut.getGreenMatrix();
+		int[][] blue  = lut.getBlueMatrix();
+		int[] redAcc = lut.cumulativeRedCount();
+		int[] greenAcc = lut.cumulativeGreenCount();
+		int[] blueAcc = lut.cumulativeBlueCount();
+		int[][] resultR = equalizeMatrix(redAcc, red);
+		int[][] resultG = equalizeMatrix(greenAcc, green);
+		int[][] resultB = equalizeMatrix(blueAcc, blue);
+		for(int i = 0; i < resultR.length; i++)
+        	for(int j = 0; j < resultR[i].length; j++)
+        		image.setRGB(i, j, new Color(resultR[i][j],resultG[i][j],resultB[i][j]).getRGB());
+		getDll().add(image);
+		changed();
+	}
+	
+	public void specify(String file) {
+		Image desiredImage = new Image(file);
+		LUT current = new LUT(get());
+		LUT desired = new LUT(desiredImage.get());
+		
+		int[] r = HistogramUtils.specify(current.redCumulativeNormalizedCount(), desired.redCumulativeNormalizedCount());
+		int[] g = HistogramUtils.specify(current.greenCumulativeNormalizedCount(), desired.greenCumulativeNormalizedCount());
+		int[] b = HistogramUtils.specify(current.blueCumulativeNormalizedCount(), desired.blueCumulativeNormalizedCount());
+		
+		BufferedImage image = ImageUtils.copyImage(get());
+		for(int row = 0; row < image.getHeight(); row++)
+			for(int col = 0; col < image.getWidth(); col++) {
+				RGB value = new RGB(image.getRGB(col, row));
+				int newColor = new RGB(r[value.getRed()], g[value.getGreen()], b[value.getBlue()]).toInt();
+				image.setRGB(col, row, newColor);
+			}
+		getDll().add(image);
+		changed();
+	}
+	
+	public static int[][] equalizeMatrix(int[] cumulative, int[][] color) {
+		int L = cumulative.length;
+		int a[] = new int[L];
+        for(int i = 0; i < L; i++)
+            a[i] = (int)Math.floor(((L-1)*cumulative[i])/(color[0].length * color.length));
+        
+        for(int i = 0; i < color.length; i++)
+        	for(int j = 0; j < color[i].length; j++)
+        		color[i][j] = a[color[i][j]];
+        return color;
 	}
 
 	public void downsample(int sampleSize) {

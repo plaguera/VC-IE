@@ -11,6 +11,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -107,21 +108,21 @@ public class ImageFrame extends Frame implements Observer {
 
 		setMntmOpen(new JMenuItem("Open..."));
 		setMntmSave(new JMenuItem("Save..."));
-		setMntmExit(new JMenuItem("Exit..."));
-		setMntmToGrayscale(new JMenuItem("Convert to Grayscale"));
-		setMntmShowHideProp(new JMenuItem("Show / Hide Properties"));
-		setMntmUndo(new JMenuItem("Undo"));
-		setMntmRedo(new JMenuItem("Redo"));
-		setMntmFlipH(new JMenuItem("Flip Horizontally"));
-		setMntmFlipV(new JMenuItem("Flip Vertically"));
-		setMntmTrans(new JMenuItem("Transpose"));
-		setMntmRotate(new JMenuItem("Rotate..."));
-		setMntmScale(new JMenuItem("Scale..."));
-		setMntmROI(new JMenuItem("Region of Interest..."));
-		setMntmCS(new JMenuItem("Cross Section..."));
-		setMntmEQ(new JMenuItem("Equalize Grayscale"));
-		setMntmEQRGB(new JMenuItem("Equalize RGB"));
-		setMntmSpecify(new JMenuItem("Specify..."));
+		setMntmExit(new JMenuItem("Exit...", new ImageIcon("src/images/exit.png")));
+		setMntmToGrayscale(new JMenuItem("Convert to Grayscale", new ImageIcon("src/images/grayscale.png")));
+		setMntmShowHideProp(new JMenuItem("Show / Hide Properties", new ImageIcon("src/images/hide.png")));
+		setMntmUndo(new JMenuItem("Undo", new ImageIcon("src/images/undo.png")));
+		setMntmRedo(new JMenuItem("Redo", new ImageIcon("src/images/redo.png")));
+		setMntmFlipH(new JMenuItem("Flip Horizontally", new ImageIcon("src/images/flipH.png")));
+		setMntmFlipV(new JMenuItem("Flip Vertically", new ImageIcon("src/images/flipV.png")));
+		setMntmTrans(new JMenuItem("Transpose", new ImageIcon("src/images/transpose.png")));
+		setMntmRotate(new JMenuItem("Rotate...", new ImageIcon("src/images/rotate16.png")));
+		setMntmScale(new JMenuItem("Scale...", new ImageIcon("src/images/scale16.png")));
+		setMntmROI(new JMenuItem("Region of Interest...", new ImageIcon("src/images/roi.png")));
+		setMntmCS(new JMenuItem("Cross Section...", new ImageIcon("src/images/cs.png")));
+		setMntmEQ(new JMenuItem("Equalize Grayscale", new ImageIcon("src/images/eq.png")));
+		setMntmEQRGB(new JMenuItem("Equalize RGB", new ImageIcon("src/images/eqRGB.png")));
+		setMntmSpecify(new JMenuItem("Specify...", new ImageIcon("src/images/overlap.png")));
 
 		getMntmOpen().setIcon(UIManager.getIcon("FileView.fileIcon"));
 		getMntmSave().setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));

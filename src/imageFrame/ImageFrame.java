@@ -78,7 +78,7 @@ public class ImageFrame extends Frame implements Observer {
 		getTabbedPane().addTab("Histogram", getHistogramPane());
 		getTabbedPane().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				System.out.println("Tab: " + tabbedPane.getSelectedIndex());
+				//System.out.println("Tab: " + tabbedPane.getSelectedIndex());
 			}
 		});
 		getImage().addObserver(this);

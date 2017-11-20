@@ -30,13 +30,13 @@ public class Image extends Observable {
 
 	public Image(Image image) {
 		setPath(image.getPath());
-		setDll(new DLL<BufferedImage>(get()));
+		setDll(new DLL<BufferedImage>(image.get()));
 		setOriginal(ImageUtils.copyImage(image.get()));
 	}
 
 	public Image(BufferedImage image, String path) {
 		setPath(path);
-		setDll(new DLL<BufferedImage>(get()));
+		setDll(new DLL<BufferedImage>(image));
 		setOriginal(ImageUtils.copyImage(image));
 	}
 

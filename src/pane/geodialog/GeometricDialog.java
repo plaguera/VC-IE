@@ -41,7 +41,7 @@ public abstract class GeometricDialog {
 
 		        UIManager.put("OptionPane.minimumSize",new Dimension(300, 120));
 		        JOptionPane.showMessageDialog(null, panel, "Rescale Image", JOptionPane.PLAIN_MESSAGE, icon);
-		        System.out.println((Integer) spinner.getValue());
+		        //System.out.println((Integer) spinner.getValue());
 				return (double)((Integer) spinner.getValue() / 100.0d);
 			}
 			

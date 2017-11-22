@@ -12,6 +12,7 @@ import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -110,7 +111,7 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmSave(new JMenuItem("Save..."));
 		setMntmExit(new JMenuItem("Exit...", new ImageIcon("src/images/exit.png")));
 		setMntmToGrayscale(new JMenuItem("Convert to Grayscale", new ImageIcon("src/images/grayscale.png")));
-		setMntmShowHideProp(new JMenuItem("Show / Hide Properties", new ImageIcon("src/images/hide.png")));
+		setMntmShowHideProp(new JCheckBoxMenuItem("Show Properties", false));
 		setMntmUndo(new JMenuItem("Undo", new ImageIcon("src/images/undo.png")));
 		setMntmRedo(new JMenuItem("Redo", new ImageIcon("src/images/redo.png")));
 		setMntmFlipH(new JMenuItem("Flip Horizontally", new ImageIcon("src/images/flipH.png")));
@@ -194,7 +195,7 @@ public class ImageFrame extends Frame implements Observer {
 
 		getMntmShowHideProp().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getPropertiesPane().setVisible(!getPropertiesPane().isVisible());
+				getPropertiesPane().setVisible(getMntmShowHideProp().isSelected());
 				pack();
 				setLocationRelativeTo(null);
 			}

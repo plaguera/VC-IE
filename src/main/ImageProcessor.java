@@ -59,9 +59,10 @@ public class ImageProcessor {
 		panel.setBorder( textField.getBorder() );
 		textField.setBorder(null);
 		outerPanel.add(panel);
-
+		
         UIManager.put("OptionPane.minimumSize",new Dimension(300, 120));
         JOptionPane.showMessageDialog(null, outerPanel, "Open Image", JOptionPane.PLAIN_MESSAGE, icon);
+        
         return textField.getText();
 	}
 }

@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 import image.Image;
+import imageFrame.ImagePane.ImagePanel;
 import imageFrame.PixelColorPanel;
 
 public class MousePixelListener implements MouseMotionListener {
@@ -26,8 +27,11 @@ public class MousePixelListener implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		int x = e.getX();
-		int y = e.getY();
+		double sf = 1.0d;
+		if(e.getComponent() instanceof ImagePanel)
+			sf = (double)image.getWidth() / (double)((ImagePanel)e.getComponent()).getWidth();
+		int x = (int) (e.getX() * sf);
+		int y = (int) (e.getY() * sf);
 		if (x > image.getWidth() || x < 0 || y > image.getHeight() || y < 0)
 			return;
 		getPanel().setColor(image.get().getRGB(x, y), x, y);

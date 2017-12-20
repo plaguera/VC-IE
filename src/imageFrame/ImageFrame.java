@@ -59,7 +59,7 @@ public class ImageFrame extends Frame implements Observer {
 		getPropertiesPane().setVisible(false);
 		
 		getTabbedPane().addTab("Operations", getImagePane());
-		getTabbedPane().addTab("Histogram", getHistogramPane().getTabbedPane());
+		getTabbedPane().addTab("Histogram", getHistogramPane());
 		
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
@@ -81,7 +81,7 @@ public class ImageFrame extends Frame implements Observer {
 		setPropertiesPane(new PropertiesPane(getImage()));
 		getPropertiesPane().setVisible(false);
 		getTabbedPane().addTab("Operations", getImagePane());
-		getTabbedPane().addTab("Histogram", getHistogramPane().getTabbedPane());
+		getTabbedPane().addTab("Histogram", getHistogramPane());
 		getTabbedPane().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				//System.out.println("Tab: " + tabbedPane.getSelectedIndex());

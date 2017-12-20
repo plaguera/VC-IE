@@ -22,7 +22,7 @@ import utils.HistogramLayer;
 @SuppressWarnings("serial")
 public class HistogramPaneTab extends JPanel {
 
-	protected static final int MIN_BAR_WIDTH = 4;
+	protected static final int MIN_BAR_WIDTH = 2;
 	
 	private JPopupMenu popup;
 	private List<HistogramLayer> layers;

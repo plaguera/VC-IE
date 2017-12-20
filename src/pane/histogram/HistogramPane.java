@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -18,7 +20,7 @@ import image.Pane;
 import listener.MouseHistogramListener;
 
 @SuppressWarnings("serial")
-public class HistogramPane extends Pane {
+public class HistogramPane extends Pane implements Observer {
 
 	private JTabbedPane tabbedPane;
 	private HistogramPaneTab histRed, histGreen, histBlue, histGray, histCumul, histNorm;
@@ -34,13 +36,6 @@ public class HistogramPane extends Pane {
 		setHistGray(new HistogramPaneTab());
 		setHistCumul(new HistogramPaneTab());
 		setHistNorm(new HistogramPaneTab());
-		
-		getHistRed().newHistogramLayer(lut.redCount(), Color.RED, true, "Red");
-		getHistGreen().newHistogramLayer(lut.greenCount(), Color.GREEN, true, "Green");
-		getHistBlue().newHistogramLayer(lut.blueCount(), Color.BLUE, true, "Blue");
-		getHistGray().newHistogramLayer(lut.grayCount(), Color.DARK_GRAY, true, "Gray");
-		getHistCumul().newHistogramLayer(lut.cumulativeCount(), Color.GRAY, true, "Cumulative");
-		getHistNorm().newHistogramLayer(lut.cumulativeCount(), Color.LIGHT_GRAY, true, "Normalized");
 		
 		getTabbedPane().addTab("Red", getHistRed());
 		getTabbedPane().addTab("Green", getHistGreen());
@@ -79,6 +74,34 @@ public class HistogramPane extends Pane {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		refreshDatasets();
+	}
+	
+	private void refreshDatasets() {
+		LUT lut = new LUT(getImage());
+		
+		getHistRed().deleteHistogramLayer();
+		getHistGreen().deleteHistogramLayer();
+		getHistBlue().deleteHistogramLayer();
+		getHistGray().deleteHistogramLayer();
+		getHistCumul().deleteHistogramLayer();
+		getHistNorm().deleteHistogramLayer();
+		
+		getHistRed().newHistogramLayer(filterBlacks(lut.redCount()), Color.RED, true, "Red");
+		getHistGreen().newHistogramLayer(filterBlacks(lut.greenCount()), Color.GREEN, true, "Green");
+		getHistBlue().newHistogramLayer(filterBlacks(lut.blueCount()), Color.BLUE, true, "Blue");
+		getHistGray().newHistogramLayer(filterBlacks(lut.grayCount()), Color.DARK_GRAY, true, "Gray");
+		getHistCumul().newHistogramLayer(filterBlacks(lut.cumulativeCount()), Color.GRAY, true, "Cumulative");
+		getHistNorm().newHistogramLayer(filterBlacks(lut.cumulativeCount()), Color.LIGHT_GRAY, true, "Normalized");
+	}
+	
+	public int[] filterBlacks(int[] values) {
+		values[0] = getImage().blacks;
+		return values;
 	}
 
 	public JTabbedPane getTabbedPane() {

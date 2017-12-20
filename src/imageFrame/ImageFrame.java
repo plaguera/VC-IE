@@ -63,7 +63,7 @@ public class ImageFrame extends Frame implements Observer {
 		
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		//getImage().addObserver(getHistogramPane());
+		getImage().addObserver(getHistogramPane());
 		
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
@@ -89,7 +89,7 @@ public class ImageFrame extends Frame implements Observer {
 		});
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		//getImage().addObserver(getHistogramPane());
+		getImage().addObserver(getHistogramPane());
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
 		menuBar();

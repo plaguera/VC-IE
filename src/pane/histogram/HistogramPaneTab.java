@@ -76,6 +76,11 @@ public class HistogramPaneTab extends JPanel {
 		popup.add(newCheckBoxMenuItem);
 		layers.add(newLayer);
 	}
+	
+	public void deleteHistogramLayer() {
+		if(!getLayers().isEmpty())
+			getLayers().remove(0);
+	} 
 
 	private void drawHistogramLayer(Graphics g, HistogramLayer layer) {
 		if (layer != null) {

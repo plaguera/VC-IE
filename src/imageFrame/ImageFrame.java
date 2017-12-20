@@ -7,6 +7,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -44,6 +46,8 @@ public class ImageFrame extends Frame implements Observer {
 	private ImagePane imagePane;
 	private HistogramPane histogramPane;
 	private PropertiesPane propertiesPane;
+	
+	private List<Integer> angles = new ArrayList<Integer>();
 
 	public ImageFrame(Image image) {
 		super(null);
@@ -55,11 +59,11 @@ public class ImageFrame extends Frame implements Observer {
 		getPropertiesPane().setVisible(false);
 		
 		getTabbedPane().addTab("Operations", getImagePane());
-		getTabbedPane().addTab("Histogram", getHistogramPane());
+		getTabbedPane().addTab("Histogram", getHistogramPane().getTabbedPane());
 		
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		getImage().addObserver(getHistogramPane());
+		//getImage().addObserver(getHistogramPane());
 		
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
@@ -77,7 +81,7 @@ public class ImageFrame extends Frame implements Observer {
 		setPropertiesPane(new PropertiesPane(getImage()));
 		getPropertiesPane().setVisible(false);
 		getTabbedPane().addTab("Operations", getImagePane());
-		getTabbedPane().addTab("Histogram", getHistogramPane());
+		getTabbedPane().addTab("Histogram", getHistogramPane().getTabbedPane());
 		getTabbedPane().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				//System.out.println("Tab: " + tabbedPane.getSelectedIndex());
@@ -85,7 +89,7 @@ public class ImageFrame extends Frame implements Observer {
 		});
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		getImage().addObserver(getHistogramPane());
+		//getImage().addObserver(getHistogramPane());
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
 		menuBar();
@@ -204,12 +208,18 @@ public class ImageFrame extends Frame implements Observer {
 		getMntmUndo().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlZ();
+				getImagePane().getImagePanel().setPreferredSize();
+				getImagePane().repaint();
+				pack();
 			}
 		});
 
 		getMntmRedo().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlY();
+				getImagePane().getImagePanel().setPreferredSize();
+				getImagePane().repaint();
+				pack();
 			}
 		});
 		
@@ -247,8 +257,9 @@ public class ImageFrame extends Frame implements Observer {
 		
 		getMntmRotate().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double scaleF = GeometricDialog.ROTATE_DIALOG().launch();
-				getImage().rotate((int) scaleF);
+				int[] dirDeg = GeometricDialog.ROTATE_DIALOG().launch(getImage());
+				angles.add(dirDeg[0] * dirDeg[1]);
+				getImage().rotateN(angles.stream().mapToInt(Integer::intValue).sum());
 				frame.getImagePane().getImagePanel().setPreferredSize();
 				frame.getImagePane().repaint();
 				frame.pack();
@@ -257,8 +268,8 @@ public class ImageFrame extends Frame implements Observer {
 		
 		getMntmScale().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double scaleF = GeometricDialog.SCALE_DIALOG().launch();
-				getImage().scale(scaleF);
+				int[] newWH = GeometricDialog.SCALE_DIALOG().launch(getImage());
+				getImage().scale(newWH[0], newWH[1], newWH[2]);
 				frame.getImagePane().getImagePanel().setPreferredSize();
 				frame.getImagePane().repaint();
 				frame.pack();

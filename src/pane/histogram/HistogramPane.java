@@ -2,116 +2,105 @@ package pane.histogram;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JTabbedPane;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.statistics.HistogramType;
-import org.jfree.data.xy.IntervalXYDataset;
 
 import image.Image;
 import image.LUT;
 import image.Pane;
 
 @SuppressWarnings("serial")
-public class HistogramPane extends Pane implements Observer {
+public class HistogramPane extends Pane {
 
-	private ChartPanel red, green, blue, gray, cumulative, normalized;
-	JTabbedPane tabbedPane;
+	private JTabbedPane tabbedPane;
+	private HistogramPaneTab histRed, histGreen, histBlue, histGray, histCumul, histNorm;
 
 	public HistogramPane(Image image) {
 		super(image);
-		LUT lut = new LUT(getImage());
-		red = new ChartPanel(createChart(createDataset(int2double(lut.redCount2()), "Red"), Color.RED));
-		green = new ChartPanel(createChart(createDataset(int2double(lut.greenCount2()), "Green"), Color.GREEN));
-		blue = new ChartPanel(createChart(createDataset(int2double(lut.blueCount2()), "Blue"), Color.BLUE));
-		gray = new ChartPanel(createChart(createDataset(int2double(lut.grayCount2()), "Gray"), Color.DARK_GRAY));
-		cumulative = new ChartPanel(
-				createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
-		normalized = new ChartPanel(
-				createChart(createDataset(int2double(lut.grayCount2()), "Normalized (Gray)"), Color.GRAY));
-
-		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.addTab("Red", red);
-		tabbedPane.addTab("Green", green);
-		tabbedPane.addTab("Blue", blue);
-		tabbedPane.addTab("Gray", gray);
-		tabbedPane.addTab("Cumulative", cumulative);
-		tabbedPane.addTab("Normalized", normalized);
-		add(tabbedPane);
-
-		setPreferredSize(new java.awt.Dimension(256, 256));
+		LUT lut = new LUT(image);
+		setTabbedPane(new JTabbedPane(JTabbedPane.TOP));
+		setHistRed(new HistogramPaneTab());
+		setHistGreen(new HistogramPaneTab());
+		setHistBlue(new HistogramPaneTab());
+		setHistGray(new HistogramPaneTab());
+		setHistCumul(new HistogramPaneTab());
+		setHistNorm(new HistogramPaneTab());
+		
+		getHistRed().newHistogramLayer(lut.redCount(), Color.RED, true, "Red");
+		getHistGreen().newHistogramLayer(lut.greenCount(), Color.GREEN, true, "Green");
+		getHistBlue().newHistogramLayer(lut.blueCount(), Color.BLUE, true, "Blue");
+		getHistGray().newHistogramLayer(lut.grayCount(), Color.DARK_GRAY, true, "Gray");
+		getHistCumul().newHistogramLayer(lut.cumulativeCount(), Color.GRAY, true, "Cumulative");
+		getHistNorm().newHistogramLayer(lut.cumulativeCount(), Color.LIGHT_GRAY, true, "Normalized");
+		
+		getTabbedPane().addTab("Red", getHistRed());
+		getTabbedPane().addTab("Green", getHistGreen());
+		getTabbedPane().addTab("Blue", getHistBlue());
+		getTabbedPane().addTab("Gray", getHistGray());
+		getTabbedPane().addTab("Cumulative", getHistCumul());
+		//getTabbedPane().addTab("Normalized", getHistNorm());
 	}
-
-	private void refreshDatasets() {
-		LUT lut = new LUT(getImage());
-		red.setChart(createChart(createDataset(int2double(lut.redCount2()), "Red"), Color.RED));
-		green.setChart(createChart(createDataset(int2double(lut.greenCount2()), "Green"), Color.GREEN));
-		blue.setChart(createChart(createDataset(int2double(lut.blueCount2()), "Blue"), Color.BLUE));
-		gray.setChart(createChart(createDataset(int2double(lut.grayCount2()), "Gray"), Color.DARK_GRAY));
-		cumulative.setChart(
-				createChart(createDataset(int2double(lut.cumulativeCount2()), "Cumulative (Gray)"), Color.GRAY));
-		normalized.setChart(createChart(createDataset(int2double(lut.grayCount2()), "Normalized (Gray)"), Color.GRAY));
-	}
-
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
 	}
 
-	private IntervalXYDataset createDataset(double[] values, String title) {
-		HistogramDataset dataset = new HistogramDataset();
-		if (title.equals("Cumulative (Gray)"))
-			dataset.setType(HistogramType.RELATIVE_FREQUENCY);
-		if (title.equals("Normalized (Gray)"))
-			dataset.setType(HistogramType.SCALE_AREA_TO_1);
-		dataset.addSeries(title, values, 256);
-		return dataset;
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
 	}
 
-	private static double[] int2double(int[] values) {
-		double[] aux = new double[values.length];
-		for (int i = 0; i < values.length; i++)
-			aux[i] = values[i];
-		return aux;
+	public HistogramPaneTab getHistRed() {
+		return histRed;
 	}
 
-	private static JFreeChart createChart(IntervalXYDataset dataset, Color color) {
-		JFreeChart chart = ChartFactory.createHistogram("", null, null, dataset, PlotOrientation.VERTICAL, true, true,
-				false);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setDomainPannable(true);
-		plot.setRangePannable(true);
-		plot.setForegroundAlpha(0.85f);
-		plot.getDomainAxis().setLowerMargin(0.0);
-		plot.getDomainAxis().setUpperMargin(0.0);
-		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
-		renderer.setDrawBarOutline(false);
-		// flat bars look best...
-		renderer.setBarPainter(new StandardXYBarPainter());
-		renderer.setShadowVisible(false);
-		XYItemRenderer r = chart.getXYPlot().getRenderer();
-		r.setSeriesPaint(0, color);
-		return chart;
+	public HistogramPaneTab getHistBlue() {
+		return histBlue;
 	}
 
-	@Override
-	public void update(Observable o, Object arg) {
-		refreshDatasets();
+	public HistogramPaneTab getHistGreen() {
+		return histGreen;
+	}
+
+	public HistogramPaneTab getHistGray() {
+		return histGray;
+	}
+
+	public HistogramPaneTab getHistCumul() {
+		return histCumul;
+	}
+
+	public HistogramPaneTab getHistNorm() {
+		return histNorm;
+	}
+
+	public void setTabbedPane(JTabbedPane tabbedPane) {
+		this.tabbedPane = tabbedPane;
+	}
+
+	public void setHistRed(HistogramPaneTab histRed) {
+		this.histRed = histRed;
+	}
+
+	public void setHistBlue(HistogramPaneTab histBlue) {
+		this.histBlue = histBlue;
+	}
+
+	public void setHistGreen(HistogramPaneTab histGreen) {
+		this.histGreen = histGreen;
+	}
+
+	public void setHistGray(HistogramPaneTab histGray) {
+		this.histGray = histGray;
+	}
+
+	public void setHistCumul(HistogramPaneTab histCumul) {
+		this.histCumul = histCumul;
+	}
+
+	public void setHistNorm(HistogramPaneTab histNorm) {
+		this.histNorm = histNorm;
 	}
 
 }

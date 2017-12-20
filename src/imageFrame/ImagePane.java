@@ -27,6 +27,7 @@ import pane.gamma.GammaCorrectionPane;
 import pane.linearAdjustment.LinearAdjustmentPane;
 import pane.linearTransformation.FunctionSegment;
 import pane.linearTransformation.LinearTranformationPane;
+import utils.ImageUtils;
 
 @SuppressWarnings("serial")
 public class ImagePane extends Panel {
@@ -108,6 +109,10 @@ public class ImagePane extends Panel {
 						if(isROI()) {
 							getImage().subimage(x, y, w, h);
 							setROI(false);
+							ImageFrame frame = ImageUtils.getImageFrame(e.getComponent());
+							frame.getImagePane().getImagePanel().setPreferredSize();
+							frame.getImagePane().repaint();
+							frame.pack();
 						}
 						if(isCS()) {
 							FunctionSegment aux = new FunctionSegment(getrP1(), getrP2());

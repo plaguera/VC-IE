@@ -64,6 +64,26 @@ public class Filter {
 		else
 			return new Kernel(1, size*2 + 1, data);
 	}
+	
+	public static float[][] doubleArrayDimension(Kernel kernel) {
+		int kernelWidth = kernel.getWidth();
+		int kernelHeight = kernel.getHeight();
+		
+		float[] aux = kernel.getKernelData(null);
+		float[][] data = new float[kernelHeight][kernelWidth];
+		
+		for(int i = 0; i < aux.length; i++) {
+			int row = i / kernelWidth;
+			int col = i % kernelWidth;
+			data[row][col] = aux[i];
+		}
+		for(float[] row : data) {
+			for(float i : row)
+				System.out.print(i + " ");
+			System.out.println();
+		}
+		return data;
+	}
 
 	public static BufferedImage convolveManual(Image image, Kernel kernel) {
 
@@ -75,32 +95,22 @@ public class Filter {
 		int kernelWidth = kernel.getWidth();
 		int kernelHeight = kernel.getHeight();
 		
-		float[] aux = kernel.getKernelData(null);
-		float[][] data = new float[kernelHeight][kernelWidth];
-		int row = 0, col = 0;
-		
-		for(int i = 0; i < aux.length; i++) {
-			data[row][col++] = aux[i];
-			if(col == kernelWidth-1) {
-				row++;
-				col = 0;
-			}
-		}
+		float[][] data = doubleArrayDimension(kernel);
 
 		for (int y = 1; y < height - 1; y++) {
 			for (int x = 1; x < width - 1; x++) {
 
-				// get 3-by-3 array of colors in neighborhood
-				int[][] gray = new int[3][3];
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 3; j++) {
+				// get N-by-M array of colors in neighborhood
+				int[][] gray = new int[kernelHeight][kernelWidth];
+				for (int i = 0; i < kernelHeight; i++) {
+					for (int j = 0; j < kernelWidth; j++) {
 						gray[i][j] = new RGB(image.get().getRGB(x - 1 + i, y - 1 + j)).gray();
 					}
 				}
 				// apply filter
 				int gray1 = 0, gray2 = 0;
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 3; j++) {
+				for (int i = 0; i < kernelHeight; i++) {
+					for (int j = 0; j < kernelWidth; j++) {
 						gray1 += gray[i][j] * data[i][j];
 						gray2 += gray[i][j] * data[i][j];
 					}
@@ -108,7 +118,7 @@ public class Filter {
 				// int magnitude = 255 - truncate(Math.abs(gray1) + Math.abs(gray2));
 				int magnitude = (int) (255 - ImageUtils.truncate(Math.sqrt(gray1 * gray1 + gray2 * gray2)));
 				Color grayscale = new Color(magnitude, magnitude, magnitude);
-				output.setRGB(y, x, grayscale.getRGB());
+				output.setRGB(x, y, grayscale.getRGB());
 			}
 		}
 		return output;

@@ -28,7 +28,7 @@ public class HistogramPane extends Pane implements Observer {
 
 	public HistogramPane(Image image) {
 		super(image);
-		LUT lut = new LUT(image);
+		//LUT lut = new LUT(image);
 		setTabbedPane(new JTabbedPane(JTabbedPane.TOP));
 		setHistRed(new HistogramPaneTab());
 		setHistGreen(new HistogramPaneTab());

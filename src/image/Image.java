@@ -494,7 +494,6 @@ public class Image extends Observable {
 	public void setDll(DLL<BufferedImage> dll) {
 		this.dll = dll;
 		this.blacks = blacks();
-		System.out.println("INIT --> " + blacks);
 	}
 
 	private BufferedImage lastCommit() {

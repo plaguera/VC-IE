@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.Kernel;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +27,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
+import filter.Filter;
 import image.Frame;
 import image.Image;
+import pane.filterdialog.FilterDialog;
 import pane.geodialog.GeometricDialog;
 import pane.histogram.HistogramPane;
 import pane.properties.PropertiesPane;
@@ -37,9 +40,10 @@ import utils.ImageUtils;
 public class ImageFrame extends Frame implements Observer {
 
 	private JMenuBar menuBar;
-	private JMenu mnFile, mnEdit, mnView, mnGeometric, mnHistogram;
+	private JMenu mnFile, mnEdit, mnView, mnGeometric, mnHistogram, mnFilter;
 	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo, mntmFlipH,
-			mntmFlipV, mntmTrans, mntmRotate, mntmScale, mntmROI, mntmCS, mntmEQ, mntmEQRGB, mntmSpecify;
+			mntmFlipV, mntmTrans, mntmRotate, mntmScale, mntmROI, mntmCS, mntmEQ, mntmEQRGB, mntmSpecify, mntmMean,
+			mntmGauss, mntmXGrad, mntmYGrad, mntmXSobel, mntmYSobel, mntmConvolve;
 
 	private Image image;
 	private JTabbedPane tabbedPane;
@@ -102,6 +106,7 @@ public class ImageFrame extends Frame implements Observer {
 		setMnEdit(new JMenu("Edit"));
 		setMnView(new JMenu("View"));
 		setMnGeometric(new JMenu("Geometric Operations"));
+		setMnFilter(new JMenu("Filter"));
 		setMnHistogram(new JMenu("Histogram"));
 		setJMenuBar(getMenu());
 
@@ -110,6 +115,7 @@ public class ImageFrame extends Frame implements Observer {
 		getMenu().add(getMnView());
 		getMenu().add(getMnHistogram());
 		getMenu().add(getMnGeometric());
+		getMenu().add(getMnFilter());
 
 		setMntmOpen(new JMenuItem("Open..."));
 		setMntmSave(new JMenuItem("Save..."));
@@ -128,6 +134,13 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmEQ(new JMenuItem("Equalize Grayscale", new ImageIcon("src/images/eq.png")));
 		setMntmEQRGB(new JMenuItem("Equalize RGB", new ImageIcon("src/images/eqRGB.png")));
 		setMntmSpecify(new JMenuItem("Specify...", new ImageIcon("src/images/overlap.png")));
+		setMntmMean(new JMenuItem("Mean...", new ImageIcon("src/images/mean.png")));
+		setMntmGauss(new JMenuItem("Gauss...", new ImageIcon("src/images/gauss.png")));
+		setMntmXGrad(new JMenuItem("Horizontal Gradient", new ImageIcon("src/images/horizontal.png")));
+		setMntmYGrad(new JMenuItem("Vertical Gradient", new ImageIcon("src/images/vertical.png")));
+		setMntmXSobel(new JMenuItem("Horizontal Sobel", new ImageIcon("src/images/horizontal.png")));
+		setMntmYSobel(new JMenuItem("Vertical Sobel", new ImageIcon("src/images/vertical.png")));
+		setMntmConvolve(new JMenuItem("Convolve...", new ImageIcon("src/images/matrix.png")));
 
 		getMntmOpen().setIcon(UIManager.getIcon("FileView.fileIcon"));
 		getMntmSave().setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
@@ -153,6 +166,14 @@ public class ImageFrame extends Frame implements Observer {
 		getMnGeometric().add(getMntmTrans());
 		getMnGeometric().add(getMntmRotate());
 		getMnGeometric().add(getMntmScale());
+		
+		getMnFilter().add(getMntmMean());
+		getMnFilter().add(getMntmGauss());
+		getMnFilter().add(getMntmXGrad());
+		getMnFilter().add(getMntmYGrad());
+		getMnFilter().add(getMntmXSobel());
+		getMnFilter().add(getMntmYSobel());
+		getMnFilter().add(getMntmConvolve());
 
 		getMntmOpen().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -296,6 +317,61 @@ public class ImageFrame extends Frame implements Observer {
 				getImage().specify(selectedFile.getAbsolutePath());
 			}
 		});
+		
+		getMntmMean().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Filter.convolveManual(getImage());
+				getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.MEAN_DIALOG().launch()));
+				getImage().changed();
+			}
+		});
+		
+		getMntmGauss().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Filter.convolveManual(getImage());
+				Kernel kernelH = FilterDialog.GAUSS_DIALOG().launch();
+				getImage().getDll().add(Filter.convolve(getImage(), kernelH));
+				Kernel kernelV = new Kernel(1, kernelH.getWidth(), kernelH.getKernelData(null));
+				getImage().getDll().add(Filter.convolve(getImage(), kernelV));
+				getImage().changed();
+			}
+		});
+		
+		getMntmXGrad().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_GRADIENT_X));
+				getImage().changed();
+			}
+		});
+		
+		getMntmYGrad().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_GRADIENT_Y));
+				getImage().changed();
+			}
+		});
+		
+		getMntmXSobel().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_SOBEL_X));
+				getImage().changed();
+			}
+		});
+		
+		getMntmYSobel().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_SOBEL_Y));
+				getImage().changed();
+			}
+		});
+		
+		getMntmConvolve().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.CONVOLVE_DIALOG().launch()));
+				getImage().changed();
+				;
+			}
+		});
 
 		setFocusable(true);
 		addKeyListener(new KeyListener() {
@@ -331,6 +407,8 @@ public class ImageFrame extends Frame implements Observer {
 	public JMenu getMnEdit() { return mnEdit; }
 	public JMenu getMnView() { return mnView; }
 	public JMenu getMnGeometric() { return mnGeometric; }
+	public JMenu getMnFilter() { return mnFilter; }
+	public JMenu getMnHistogram() { return mnHistogram; }
 	public JMenuItem getMntmOpen() { return mntmOpen; }
 	public JMenuItem getMntmSave() { return mntmSave; }
 	public JMenuItem getMntmExit() { return mntmExit; }
@@ -345,6 +423,15 @@ public class ImageFrame extends Frame implements Observer {
 	public JMenuItem getMntmScale() { return mntmScale; }
 	public JMenuItem getMntmROI() { return mntmROI; }
 	public JMenuItem getMntmCS() { return mntmCS; }
+	public JMenuItem getMntmEQ() { return mntmEQ; }
+	public JMenuItem getMntmEQRGB() { return mntmEQRGB; }
+	public JMenuItem getMntmSpecify() { return mntmSpecify; }
+	public JMenuItem getMntmMean() { return mntmMean; }
+	public JMenuItem getMntmGauss() { return mntmGauss; }
+	public JMenuItem getMntmXGrad() { return mntmXGrad; }
+	public JMenuItem getMntmYGrad() { return mntmYGrad; }
+	public JMenuItem getMntmXSobel() { return mntmXSobel; }
+	public JMenuItem getMntmYSobel() { return mntmYSobel; }
 
 	public void setImage(Image image) { this.image = image; }
 	public void setTabbedPane(JTabbedPane tabbedPane) { this.tabbedPane = tabbedPane; }
@@ -356,6 +443,8 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMnEdit(JMenu mnEdit) { this.mnEdit = mnEdit; }
 	public void setMnView(JMenu mntmView) { this.mnView = mntmView; }
 	public void setMnGeometric(JMenu mnGeometric) { this.mnGeometric = mnGeometric; }
+	public void setMnHistogram(JMenu mnHistogram) { this.mnHistogram = mnHistogram; }
+	public void setMnFilter(JMenu mnFilter) { this.mnFilter = mnFilter; }
 	public void setMntmOpen(JMenuItem mntmOpen) { this.mntmOpen = mntmOpen; }
 	public void setMntmSave(JMenuItem mntmSave) { this.mntmSave = mntmSave; }
 	public void setMntmExit(JMenuItem mntmExit) { this.mntmExit = mntmExit; }
@@ -370,37 +459,22 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMntmScale(JMenuItem mtnmScale) { this.mntmScale = mtnmScale; }
 	public void setMntmROI(JMenuItem mntmROI) { this.mntmROI = mntmROI; }
 	public void setMntmCS(JMenuItem mntmCS) { this.mntmCS = mntmCS; }
+	public void setMntmEQ(JMenuItem mntmEQ) { this.mntmEQ = mntmEQ; }
+	public void setMntmEQRGB(JMenuItem mntmEQRGB) { this.mntmEQRGB = mntmEQRGB; }
+	public void setMntmSpecify(JMenuItem mntmSpecify) { this.mntmSpecify = mntmSpecify; }
+	public void setMntmMean(JMenuItem mntmMean) { this.mntmMean = mntmMean; }
+	public void setMntmGauss(JMenuItem mntmGauss) { this.mntmGauss = mntmGauss; }
+	public void setMntmXGrad(JMenuItem mntmXGrad) { this.mntmXGrad = mntmXGrad; }
+	public void setMntmYGrad(JMenuItem mntmYGrad) { this.mntmYGrad = mntmYGrad; }
+	public void setMntmXSobel(JMenuItem mntmXSobel) { this.mntmXSobel = mntmXSobel; }
+	public void setMntmYSobel(JMenuItem mntmYSobel) { this.mntmYSobel = mntmYSobel; }
 
-	public JMenu getMnHistogram() {
-		return mnHistogram;
+	public JMenuItem getMntmConvolve() {
+		return mntmConvolve;
 	}
 
-	public void setMnHistogram(JMenu mnHistogram) {
-		this.mnHistogram = mnHistogram;
-	}
-
-	public JMenuItem getMntmEQ() {
-		return mntmEQ;
-	}
-
-	public void setMntmEQ(JMenuItem mntmEQ) {
-		this.mntmEQ = mntmEQ;
-	}
-
-	public JMenuItem getMntmEQRGB() {
-		return mntmEQRGB;
-	}
-
-	public void setMntmEQRGB(JMenuItem mntmEQRGB) {
-		this.mntmEQRGB = mntmEQRGB;
-	}
-
-	public JMenuItem getMntmSpecify() {
-		return mntmSpecify;
-	}
-
-	public void setMntmSpecify(JMenuItem mntmSpecify) {
-		this.mntmSpecify = mntmSpecify;
+	public void setMntmConvolve(JMenuItem mntmConvolve) {
+		this.mntmConvolve = mntmConvolve;
 	}
 
 	@Override

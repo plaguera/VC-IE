@@ -320,10 +320,7 @@ public class ImageFrame extends Frame implements Observer {
 		
 		getMntmMean().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//Filter.convolveManual(getImage());
 				getImage().convolute(FilterDialog.MEAN_DIALOG().launch());
-				//getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.MEAN_DIALOG().launch()));
-				//getImage().changed();
 			}
 		});
 		

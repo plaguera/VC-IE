@@ -19,6 +19,7 @@ public class FilterPanel extends JPanel {
 	private Font FONT = new Font("SansSerif", Font.BOLD, 14);
 	private int width = 0, height = 0;
 	private JSpinner[][] spinners;
+	private JSpinner spinnerD;
 	private JPanel dimensionPanel, dataPanel;
 	
 	public FilterPanel() {
@@ -26,7 +27,7 @@ public class FilterPanel extends JPanel {
 		setKHeight(3);
 		
 		setLayout(new BorderLayout());
-		dimensionPanel = new JPanel(new GridLayout(1,2));
+		dimensionPanel = new JPanel(new GridLayout(1,3));
 
 		SpinnerNumberModel modelW = new SpinnerNumberModel(getKWidth(), 3, 21, 2);
 		JSpinner spinnerW = new JSpinner(modelW);
@@ -39,6 +40,12 @@ public class FilterPanel extends JPanel {
 		spinnerH.setFont(FONT);
 		spinnerH.setBorder(BorderFactory.createTitledBorder("Height (px)"));
 		dimensionPanel.add(spinnerH);
+		
+		SpinnerNumberModel modelD = new SpinnerNumberModel(1, -128, 128, 1);
+		spinnerD = new JSpinner(modelD);
+		spinnerD.setFont(FONT);
+		spinnerD.setBorder(BorderFactory.createTitledBorder("Divisor"));
+		dimensionPanel.add(spinnerD);
 		
 		dimensionPanel.setBorder(BorderFactory.createTitledBorder("Kernel Dimensions"));
 		
@@ -78,7 +85,7 @@ public class FilterPanel extends JPanel {
 		dataPanel.setLayout(new GridLayout(getKHeight(), getKWidth()));
 		for(int i = 0; i < spinners.length; i++) {
 			for(int j = 0; j < spinners[i].length; j++) {
-				getSpinners()[i][j] = new JSpinner(new SpinnerNumberModel(0, -10, 10, 1));
+				getSpinners()[i][j] = new JSpinner(new SpinnerNumberModel(1, -10, 10, 1));
 				dataPanel.add(getSpinners()[i][j]);
 			}
 		}
@@ -87,14 +94,14 @@ public class FilterPanel extends JPanel {
 	}
 	
 	public Kernel generateKernel() {
-		float coefficient = 1.0f / 1.0f;
+		int coefficient = (int)spinnerD.getValue();
 		int width = getKWidth(), height = getKHeight();
 		float[] data = new float[width * height];
 		int iterator = 0;
 		for(int i = 0; i < spinners.length; i++) {
 			for(int j = 0; j < spinners[i].length; j++) {
 				int value = (Integer) getSpinners()[i][j].getValue();
-				data[iterator++] = value * coefficient;
+				data[iterator++] = value / (float)coefficient;
 			}
 		}
 		return new Kernel(width, height, data);

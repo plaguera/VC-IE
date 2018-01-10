@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -22,7 +26,7 @@ public class Image extends Observable {
 	private BufferedImage original;
 	private DLL<BufferedImage> dll;
 	private String path;
-	
+
 	public int blacks = 0;
 
 	public Image(String path) {
@@ -351,34 +355,87 @@ public class Image extends Observable {
 	}
 
 	public void scale(int width, int height, int hint) {
-		/*java.awt.Image img = lastCommit().getScaledInstance(width, height, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		int imageWidth = getWidth();
+		int imageHeight = getHeight();
 
-		Graphics2D bGr = bimage.createGraphics();
-		bGr.drawImage(img, 0, 0, null);
-		bGr.dispose();
-		getDll().add(bimage);
-		changed();*/
-		int imageWidth  = getWidth();
-	    int imageHeight = getHeight();
+		double scaleX = (double) width / imageWidth;
+		double scaleY = (double) height / imageHeight;
+		AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
+		AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, hint);
 
-	    double scaleX = (double)width/imageWidth;
-	    double scaleY = (double)height/imageHeight;
-	    AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
-	    AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, hint);
-
-	    getDll().add(bilinearScaleOp.filter(get(), new BufferedImage(width, height, get().getType())));
-	    changed();
+		getDll().add(bilinearScaleOp.filter(get(), new BufferedImage(width, height, get().getType())));
+		changed();
 	}
 
 	public void rotateN(int degrees) {
 		javaxt.io.Image image = new javaxt.io.Image(lastCommit());
 		image.rotate(degrees);
-		
+
 		getDll().add(image.getBufferedImage());
 		int aux = blacks;
 		changed();
 		blacks = aux;
+		/*
+		 * BufferedImage sourceBI = new BufferedImage(lastCommit().getWidth(null),
+		 * lastCommit().getHeight(null),BufferedImage.TYPE_INT_ARGB);
+		 * sourceBI.getGraphics().drawImage(lastCommit(), 0, 0, null); AffineTransform
+		 * at = new AffineTransform(); at.rotate(degrees * Math.PI/180,
+		 * sourceBI.getWidth()/2, sourceBI.getHeight()/2); BufferedImageOp bio = new
+		 * AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+		 * getDll().add(bio.filter(sourceBI, null));
+		 */
+	}
+
+	public void convolute(Kernel kernel) {
+		float[][] k = ImageUtils.doubleArrayDimension(kernel);
+		LUT lut = new LUT(this);
+		int[][] red = convoluteChannel(lut.getRedMatrix(), k);
+		int[][] green = convoluteChannel(lut.getGreenMatrix(), k);
+		int[][] blue = convoluteChannel(lut.getBlueMatrix(), k);
+		getDll().add(ImageUtils.formImage(red, green, blue));
+		changed();
+	}
+	
+	private int[][] convoluteChannel(int[][] array, float[][] kernel) {
+		int inputWidth = array.length;
+		int inputHeight = array[0].length;
+		int kernelHeight = kernel.length;
+		int kernelWidth = kernel[0].length;
+		int kernelWidthRadius = kernelWidth >>> 1;
+		int kernelHeightRadius = kernelHeight >>> 1;
+		int kernelDivisor = 1;
+		
+		if ((kernelWidth <= 0) || ((kernelWidth & 1) != 1))
+			throw new IllegalArgumentException("Kernel must have odd width");
+		if ((kernelHeight <= 0) || ((kernelHeight & 1) != 1))
+			throw new IllegalArgumentException("Kernel must have odd height");
+		
+		int[][] result = new int[inputWidth][inputHeight];
+		for (int i = inputWidth - 1; i >= 0; i--) {
+			for (int j = inputHeight - 1; j >= 0; j--) {
+				double newValue = 0.0;
+				for (int kw = kernelWidth - 1; kw >= 0; kw--)
+					for (int kh = kernelHeight - 1; kh >= 0; kh--)
+						newValue += kernel[kh][kw] * array[bound(i + kw - kernelWidthRadius, inputWidth)][
+								bound(j + kh - kernelHeightRadius, inputHeight)];
+				result[i][j] = ImageUtils.truncate((int) Math.round(newValue / kernelDivisor));
+			}
+		}
+		return result;
+	}
+	
+	public void convolve(Kernel kernel) {
+		BufferedImageOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+		getDll().add(op.filter(lastCommit(), null));
+		changed();
+	}
+
+	private static int bound(int value, int endIndex) {
+		if (value < 0)
+			return 0;
+		if (value < endIndex)
+			return value;
+		return endIndex - 1;
 	}
 
 	public double brightness() {
@@ -451,12 +508,12 @@ public class Image extends Observable {
 		System.out.println(getDll());
 		blacks = blacks();
 	}
-	
+
 	public int blacks() {
 		int count = 0;
 		for (int row = 0; row < get().getHeight(); row++)
 			for (int col = 0; col < get().getWidth(); col++)
-				if(get().getRGB(col, row) == 0)
+				if (get().getRGB(col, row) == 0)
 					count++;
 		return count;
 	}
@@ -496,7 +553,7 @@ public class Image extends Observable {
 		this.blacks = blacks();
 	}
 
-	private BufferedImage lastCommit() {
+	public BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
 	}
 

@@ -321,55 +321,49 @@ public class ImageFrame extends Frame implements Observer {
 		getMntmMean().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//Filter.convolveManual(getImage());
-				getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.MEAN_DIALOG().launch()));
-				getImage().changed();
+				getImage().convolute(FilterDialog.MEAN_DIALOG().launch());
+				//getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.MEAN_DIALOG().launch()));
+				//getImage().changed();
 			}
 		});
 		
 		getMntmGauss().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//Filter.convolveManual(getImage());
 				Kernel kernelH = FilterDialog.GAUSS_DIALOG().launch();
-				getImage().getDll().add(Filter.convolve(getImage(), kernelH));
 				Kernel kernelV = new Kernel(1, kernelH.getWidth(), kernelH.getKernelData(null));
-				getImage().getDll().add(Filter.convolve(getImage(), kernelV));
-				getImage().changed();
+				getImage().convolute(kernelH);
+				getImage().convolute(kernelV);
 			}
 		});
 		
 		getMntmXGrad().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_GRADIENT_X));
-				getImage().changed();
+				getImage().convolute(Filter.KERNEL_GRADIENT_X);
 			}
 		});
 		
 		getMntmYGrad().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_GRADIENT_Y));
-				getImage().changed();
+				getImage().convolute(Filter.KERNEL_GRADIENT_Y);
 			}
 		});
 		
 		getMntmXSobel().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_SOBEL_X));
-				getImage().changed();
+				getImage().convolute(Filter.KERNEL_SOBEL_X);
 			}
 		});
 		
 		getMntmYSobel().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getImage().getDll().add(Filter.convolve(getImage(), Filter.KERNEL_SOBEL_Y));
-				getImage().changed();
+				getImage().convolute(Filter.KERNEL_SOBEL_Y);
 			}
 		});
 		
 		getMntmConvolve().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getImage().getDll().add(Filter.convolve(getImage(), FilterDialog.CONVOLVE_DIALOG().launch()));
-				getImage().changed();
-				;
+				getImage().convolute(FilterDialog.CONVOLVE_DIALOG().launch());
+				
 			}
 		});
 

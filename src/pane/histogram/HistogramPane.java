@@ -68,6 +68,8 @@ public class HistogramPane extends Pane implements Observer {
 		getLbColorValue().setPreferredSize(new Dimension(128, 10));
 		getLbCount().setPreferredSize(new Dimension(128, 50));
 		add(labelPanel, BorderLayout.SOUTH);
+		
+		refreshDatasets();
 	}
 	
 	@Override

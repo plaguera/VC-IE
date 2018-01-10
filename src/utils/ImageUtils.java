@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.awt.image.Kernel;
 import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
@@ -271,6 +272,41 @@ public class ImageUtils {
 		else if (value > 255)
 			value = 255;
 		return value;
+	}
+	
+	public static float[][] doubleArrayDimension(Kernel kernel) {
+		int kernelWidth = kernel.getWidth();
+		int kernelHeight = kernel.getHeight();
+
+		float[] aux = kernel.getKernelData(null);
+		float[][] data = new float[kernelHeight][kernelWidth];
+
+		for (int i = 0; i < aux.length; i++) {
+			int row = i / kernelWidth;
+			int col = i % kernelWidth;
+			data[row][col] = aux[i];
+		}/*
+		for(int i = 0; i < kernelHeight; i++) {
+			for(int j = 0; j < kernelWidth; j++)
+				System.out.print(data[i][j] + " ");
+			System.out.println();
+		}
+		for (float[] row : data) {
+			for (float i : row)
+				System.out.print(i + " ");
+			System.out.println();
+		}*/
+		return data;
+	}
+	
+	public static BufferedImage formImage(int[][] red, int[][] green, int[][] blue) {
+		int width = red.length;
+		int height = red[0].length;
+		BufferedImage dst = new BufferedImage(red.length, height, BufferedImage.TYPE_INT_ARGB);
+		for(int i = 0; i < height; i++)
+			for(int j = 0; j < width; j++)
+				dst.setRGB(i, j, new Color(red[i][j], green[i][j], blue[i][j]).getRGB());
+		return dst;
 	}
 
 	public static void launchFrame(Frame frame) {

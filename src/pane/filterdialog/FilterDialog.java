@@ -27,30 +27,23 @@ public abstract class FilterDialog {
 			@Override
 			public Kernel launch() {
 				//ImageIcon icon = new ImageIcon("src/images/picture.png");
-				JPanel dimensionPanel = new JPanel(new GridLayout(1,2));
+				JPanel dimensionPanel = new JPanel(new GridLayout(1,1));
 
-				SpinnerNumberModel modelW = new SpinnerNumberModel(3, 3, 99, 2);
-				JSpinner spinnerW = new JSpinner(modelW);
-				spinnerW.setFont(FONT);
-				spinnerW.setBorder(BorderFactory.createTitledBorder("Width (px)"));
-				dimensionPanel.add(spinnerW);
-
-				SpinnerNumberModel modelH = new SpinnerNumberModel(3, 3, 99, 2);
-				JSpinner spinnerH = new JSpinner(modelH);
-				spinnerH.setFont(FONT);
-				spinnerH.setBorder(BorderFactory.createTitledBorder("Height (px)"));
-				dimensionPanel.add(spinnerH);
+				SpinnerNumberModel modelS = new SpinnerNumberModel(3, 3, 99, 2);
+				JSpinner spinnerS = new JSpinner(modelS);
+				spinnerS.setFont(FONT);
+				spinnerS.setBorder(BorderFactory.createTitledBorder("Side (px)"));
+				dimensionPanel.add(spinnerS);
 				
 				UIManager.put("OptionPane.minimumSize", new Dimension(300, 120));
 				JOptionPane.showMessageDialog(null, dimensionPanel, "Mean Filter", JOptionPane.PLAIN_MESSAGE, null);
 				
-				int width = (Integer)spinnerW.getValue();
-				int height = (Integer)spinnerH.getValue();
-				int size = width*height;
+				int side = (Integer)spinnerS.getValue();
+				int size = side*side;
 				float[] aux = new float[size];
 				for(int i = 0; i < size; i++)
 					aux[i] = 1.0f / (float)size;
-				return new Kernel(width, height, aux);
+				return new Kernel(side, side, aux);
 			}
 
 		};

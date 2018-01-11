@@ -30,9 +30,9 @@ import pane.linearTransformation.Node;
 
 public class ImageUtils {
 
-	public static final double NTSC_RED = 0.299;
-	public static final double NTSC_GREEN = 0.587;
-	public static final double NTSC_BLUE = 0.114;
+	public static final double NTSC_RED = 0.2126;
+	public static final double NTSC_GREEN = 0.7152;
+	public static final double NTSC_BLUE = 0.0722;
 
 	public static BufferedImage readImage(String file) {
 		BufferedImage aux = null;
@@ -226,10 +226,10 @@ public class ImageUtils {
 
 	public static int brightness(int color) {
 		int[] c = ColorUtils.intToRGB(color);
-		int r = (int) (Math.pow(c[0], 2) * NTSC_RED);
-		int g = (int) (Math.pow(c[1], 2) * NTSC_GREEN);
-		int b = (int) (Math.pow(c[2], 2) * NTSC_BLUE);
-		return (int) Math.sqrt(r + g + b);
+		int r = (int) (c[0] * NTSC_RED);
+		int g = (int) (c[1] * NTSC_GREEN);
+		int b = (int) (c[2] * NTSC_BLUE);
+		return (int) (r+g+b);
 	}
 
 	public static int gamma(int color, double gamma) {

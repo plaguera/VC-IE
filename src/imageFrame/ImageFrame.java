@@ -280,7 +280,7 @@ public class ImageFrame extends Frame implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				int[] dirDeg = GeometricDialog.ROTATE_DIALOG().launch(getImage());
 				angles.add(dirDeg[0] * dirDeg[1]);
-				getImage().rotateN(angles.stream().mapToInt(Integer::intValue).sum());
+				getImage().rotateNearestNeighbour(angles.stream().mapToInt(Integer::intValue).sum());
 				frame.getImagePane().getImagePanel().setPreferredSize();
 				frame.getImagePane().repaint();
 				frame.pack();

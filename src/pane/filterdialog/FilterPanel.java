@@ -85,7 +85,7 @@ public class FilterPanel extends JPanel {
 		dataPanel.setLayout(new GridLayout(getKHeight(), getKWidth()));
 		for(int i = 0; i < spinners.length; i++) {
 			for(int j = 0; j < spinners[i].length; j++) {
-				getSpinners()[i][j] = new JSpinner(new SpinnerNumberModel(1, -10, 10, 1));
+				getSpinners()[i][j] = new JSpinner(new SpinnerNumberModel(1, -128, 128, 1));
 				dataPanel.add(getSpinners()[i][j]);
 			}
 		}

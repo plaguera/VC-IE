@@ -374,15 +374,6 @@ public class Image extends Observable {
 		int aux = blacks;
 		changed();
 		blacks = aux;
-		/*
-		 * BufferedImage sourceBI = new BufferedImage(lastCommit().getWidth(null),
-		 * lastCommit().getHeight(null),BufferedImage.TYPE_INT_ARGB);
-		 * sourceBI.getGraphics().drawImage(lastCommit(), 0, 0, null); AffineTransform
-		 * at = new AffineTransform(); at.rotate(degrees * Math.PI/180,
-		 * sourceBI.getWidth()/2, sourceBI.getHeight()/2); BufferedImageOp bio = new
-		 * AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		 * getDll().add(bio.filter(sourceBI, null));
-		 */
 	}
 
 	public void convolute(Kernel kernel) {
@@ -394,7 +385,7 @@ public class Image extends Observable {
 		getDll().add(ImageUtils.formImage(red, green, blue));
 		changed();
 	}
-	
+
 	private int[][] convoluteChannel(int[][] array, float[][] kernel) {
 		int inputWidth = array.length;
 		int inputHeight = array[0].length;
@@ -403,26 +394,26 @@ public class Image extends Observable {
 		int kernelWidthRadius = kernelWidth >>> 1;
 		int kernelHeightRadius = kernelHeight >>> 1;
 		int kernelDivisor = 1;
-		
+
 		if ((kernelWidth <= 0) || ((kernelWidth & 1) != 1))
 			throw new IllegalArgumentException("Kernel must have odd width");
 		if ((kernelHeight <= 0) || ((kernelHeight & 1) != 1))
 			throw new IllegalArgumentException("Kernel must have odd height");
-		
+
 		int[][] result = new int[inputWidth][inputHeight];
 		for (int i = inputWidth - 1; i >= 0; i--) {
 			for (int j = inputHeight - 1; j >= 0; j--) {
 				double newValue = 0.0;
 				for (int kw = kernelWidth - 1; kw >= 0; kw--)
 					for (int kh = kernelHeight - 1; kh >= 0; kh--)
-						newValue += kernel[kh][kw] * array[bound(i + kw - kernelWidthRadius, inputWidth)][
-								bound(j + kh - kernelHeightRadius, inputHeight)];
+						newValue += kernel[kh][kw] * array[bound(i + kw - kernelWidthRadius, inputWidth)][bound(
+								j + kh - kernelHeightRadius, inputHeight)];
 				result[i][j] = ImageUtils.truncate((int) Math.round(newValue / kernelDivisor));
 			}
 		}
 		return result;
 	}
-	
+
 	public void convolve(Kernel kernel) {
 		BufferedImageOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
 		getDll().add(op.filter(lastCommit(), null));
@@ -501,6 +492,18 @@ public class Image extends Observable {
 		return new RGB(get().getRGB(x, y));
 	}
 
+	public int getRed(int x, int y) {
+		return new RGB(get().getRGB(x, y)).getRed();
+	}
+
+	public int getGreen(int x, int y) {
+		return new RGB(get().getRGB(x, y)).getGreen();
+	}
+
+	public int getBlue(int x, int y) {
+		return new RGB(get().getRGB(x, y)).getBlue();
+	}
+
 	public void changed() {
 		setChanged();
 		notifyObservers();
@@ -554,6 +557,209 @@ public class Image extends Observable {
 
 	public BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
+	}
+
+	public void rotateNearestNeighbour(double angle) {
+		int width = getWidth();
+		int height = getHeight();
+		double oldIradius = (double) (height - 1) / 2;
+		double oldJradius = (double) (width - 1) / 2;
+
+		Dimension newDim = CalculateNewSize(angle, true);
+		int newWidth = (int) newDim.getWidth();
+		int newHeight = (int) newDim.getHeight();
+
+		BufferedImage dst = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+
+		// get destination image size
+		double newIradius = (double) (newHeight - 1) / 2;
+		double newJradius = (double) (newWidth - 1) / 2;
+
+		// angle's sine and cosine
+		double angleRad = angle * Math.PI / 180;
+		double angleCos = Math.cos(angleRad);
+		double angleSin = Math.sin(angleRad);
+
+		// destination pixel's coordinate relative to image center
+		double ci, cj;
+
+		// source pixel's coordinates
+		int oi, oj;
+
+		ci = -newIradius;
+		LUT lut = new LUT(lastCommit());
+		int[][] red = lut.getRedMatrix();
+		int[][] green = lut.getGreenMatrix();
+		int[][] blue = lut.getBlueMatrix();
+		Color fill = new Color(0, 0, 0, 255);
+		for (int i = 0; i < newHeight; i++) {
+			cj = -newJradius;
+			for (int j = 0; j < newWidth; j++) {
+
+				// coordinate of the nearest point
+				oi = (int) (angleCos * ci + angleSin * cj + oldIradius);
+				oj = (int) (-angleSin * ci + angleCos * cj + oldJradius);
+
+				// validate source pixel's coordinates
+				if ((oi < 0) || (oj < 0) || (oi >= width) || (oj >= height)) {
+					// fill destination image with filler
+					dst.setRGB(i, j, fill.getRGB());
+				} else {
+					int r = red[oi][oj];
+					int g = green[oi][oj];
+					int b = blue[oi][oj];
+					dst.setRGB(i, j, new Color(r, g, b).getRGB());
+				}
+				cj++;
+			}
+			ci++;
+		}
+		getDll().add(dst);
+		changed();
+	}
+
+	public void rotateBilinearInterpolation(double angle) {
+		int width = getWidth();
+		int height = getHeight();
+		double oldIradius = (double) (height - 1) / 2;
+		double oldJradius = (double) (width - 1) / 2;
+
+		Dimension newDim = CalculateNewSize(angle, true);
+		int newWidth = (int) newDim.getWidth();
+		int newHeight = (int) newDim.getHeight();
+
+		BufferedImage dst = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+
+		// get destination image size
+		double newIradius = (double) (newHeight - 1) / 2;
+		double newJradius = (double) (newWidth - 1) / 2;
+
+		// angle's sine and cosine
+		double angleRad = angle * Math.PI / 180;
+		double angleCos = Math.cos(angleRad);
+		double angleSin = Math.sin(angleRad);
+
+		// destination pixel's coordinate relative to image center
+		double ci, cj;
+
+		// coordinates of source points
+		double oi, oj, ti, tj, di1, dj1, di2, dj2;
+		int oi1, oj1, oi2, oj2;
+
+		// width and height decreased by 1
+		int imax = height - 1;
+		int jmax = width - 1;
+
+		ci = -newIradius;
+		LUT lut = new LUT(lastCommit());
+		int[][] red = lut.getRedMatrix();
+		int[][] green = lut.getGreenMatrix();
+		int[][] blue = lut.getBlueMatrix();
+		Color fill = new Color(0, 0, 0, 255);
+		for (int i = 0; i < newHeight; i++) {
+
+			// do some pre-calculations of source points' coordinates
+			// (calculate the part which depends on y-loop, but does not
+			// depend on x-loop)
+			ti = angleSin * ci + oldIradius;
+			tj = angleCos * ci + oldJradius;
+
+			cj = -newJradius;
+			for (int j = 0; j < newWidth; j++) {
+
+				// coordinates of source point
+				oi = ti + angleCos * cj;
+				oj = tj - angleSin * cj;
+
+				// top-left coordinate
+				oi1 = (int) oi;
+				oj1 = (int) oj;
+
+				// validate source pixel's coordinates
+				if ((oi1 < 0) || (oj1 < 0) || (oi1 >= height) || (oj1 >= width)) {
+					// fill destination image with filler
+					dst.setRGB(j, i, fill.getRGB());
+				} else {
+					// bottom-right coordinate
+					oi2 = (oi1 == imax) ? oi1 : oi1 + 1;
+					oj2 = (oj1 == jmax) ? oj1 : oj1 + 1;
+
+					if ((di1 = oi - (double) oi1) < 0)
+						di1 = 0;
+					di2 = 1.0 - di1;
+
+					if ((dj1 = oj - (double) oj1) < 0)
+						dj1 = 0;
+					dj2 = 1.0 - dj1;
+
+					// get four points (red)
+					int p1 = red[oj1][oi1];
+					int p2 = red[oj1][oi2];
+					int p3 = red[oj2][oi1];
+					int p4 = red[oj2][oi2];
+
+					int r = (int) (di2 * (dj2 * (p1) + dj1 * (p2)) + di1 * (dj2 * (p3) + dj1 * (p4)));
+
+					// get four points (green)
+					p1 = green[oj1][oi1];
+					p2 = green[oj1][oi2];
+					p3 = green[oj2][oi1];
+					p4 = green[oj2][oi2];
+
+					int g = (int) (di2 * (dj2 * (p1) + dj1 * (p2)) + di1 * (dj2 * (p3) + dj1 * (p4)));
+
+					// get four points (blue)
+					p1 = blue[oj1][oi1];
+					p2 = blue[oj1][oi2];
+					p3 = blue[oj2][oi1];
+					p4 = blue[oj2][oi2];
+
+					int b = (int) (di2 * (dj2 * (p1) + dj1 * (p2)) + di1 * (dj2 * (p3) + dj1 * (p4)));
+
+					dst.setRGB(j, i, new Color(r,g,b).getRGB());
+				}
+				cj++;
+			}
+			ci++;
+		}
+		getDll().add(dst);
+		changed();
+	}
+
+	private Dimension CalculateNewSize(double angle, boolean keepsize) {
+		// return same size if original image size should be kept
+		if (keepsize)
+			return new Dimension(getWidth(), getHeight());
+
+		// angle's sine and cosine
+		double angleRad = angle * Math.PI / 180;
+		double angleCos = Math.cos(angleRad);
+		double angleSin = Math.sin(angleRad);
+
+		// calculate half size
+		double halfWidth = (double) getWidth() / 2;
+		double halfHeight = (double) getHeight() / 2;
+
+		// rotate corners
+		double cx1 = halfWidth * angleCos;
+		double cy1 = halfWidth * angleSin;
+
+		double cx2 = halfWidth * angleCos - halfHeight * angleSin;
+		double cy2 = halfWidth * angleSin + halfHeight * angleCos;
+
+		double cx3 = -halfHeight * angleSin;
+		double cy3 = halfHeight * angleCos;
+
+		double cx4 = 0;
+		double cy4 = 0;
+
+		// recalculate image size
+		halfWidth = Math.max(Math.max(cx1, cx2), Math.max(cx3, cx4)) - Math.min(Math.min(cx1, cx2), Math.min(cx3, cx4));
+		halfHeight = Math.max(Math.max(cy1, cy2), Math.max(cy3, cy4)) - Math.min(Math.min(cy1, cy2), Math.min(cy3, cy4));
+
+		int newWidth = (int) (halfWidth * 2 + 0.5);
+		int newHeight = (int) (halfHeight * 2 + 0.5);
+		return new Dimension(newWidth, newHeight);
 	}
 
 }

@@ -27,19 +27,19 @@ public abstract class GeometricDialog {
 			public int[] launch(Image image) {
 				ImageIcon icon = new ImageIcon("src/images/scale.png");
 				JPanel panel = new JPanel(new BorderLayout());
-				SpinnerNumberModel wModel = new SpinnerNumberModel(image.getWidth(), 0, image.getWidth()*4, 1);
+				SpinnerNumberModel wModel = new SpinnerNumberModel(image.getWidth(), 0, image.getWidth()*100, 1);
 				JSpinner spinner1 = new JSpinner(wModel);
 				spinner1.setFont(new Font("SansSerif", Font.BOLD, 14));
 				spinner1.setBorder(BorderFactory.createTitledBorder("Width (px)"));
 				panel.add(spinner1, BorderLayout.NORTH);
 
-				SpinnerNumberModel hModel = new SpinnerNumberModel(image.getHeight(), 0, image.getHeight()*4, 1);
+				SpinnerNumberModel hModel = new SpinnerNumberModel(image.getHeight(), 0, image.getHeight()*100, 1);
 				JSpinner spinner2 = new JSpinner(hModel);
 				spinner2.setFont(new Font("SansSerif", Font.BOLD, 14));
 				spinner2.setBorder(BorderFactory.createTitledBorder("Height (px)"));
 				panel.add(spinner2, BorderLayout.CENTER);
 				
-				String[] algorithm = new String[] { "Bilinear Interpolation", "Nearest Neighbor"};
+				String[] algorithm = new String[] { "Nearest Neighbour", "Bilinear Interpolation"};
 				JComboBox<String> algList = new JComboBox<>(algorithm);
 				panel.add(algList, BorderLayout.SOUTH);
 
@@ -69,12 +69,28 @@ public abstract class GeometricDialog {
 				JSpinner spinner = new JSpinner(sModel);
 				spinner.setFont(new Font("SansSerif", Font.BOLD, 14));
 				spinner.setBorder(BorderFactory.createTitledBorder("Rotate (º)"));
-				panel.add(spinner, BorderLayout.SOUTH);
+				panel.add(spinner, BorderLayout.CENTER);
+				
+				String[] algorithm = new String[] { "Rotate + Paint", "Nearest Neighbour", "Bilinear Interpolation"};
+				JComboBox<String> algList = new JComboBox<>(algorithm);
+				panel.add(algList, BorderLayout.SOUTH);
 
 				UIManager.put("OptionPane.minimumSize", new Dimension(300, 120));
 				JOptionPane.showMessageDialog(null, panel, "Rotate Image", JOptionPane.PLAIN_MESSAGE, icon);
-				return new int[] { 	((String) dirList.getSelectedItem()).equals("Left") ? -1 : 1,
-									(Integer) spinner.getValue()};
+				
+				String stringDirection = (String) dirList.getSelectedItem();
+				String stringAlgorithm = (String) algList.getSelectedItem();
+				
+				int intDirection = stringDirection.equals("Left") ? -1 : 1;
+				int angle = (Integer) spinner.getValue() * intDirection;
+				int intAlgorithm;
+				switch (stringAlgorithm) {
+					case "Rotate + Paint": intAlgorithm = Image.ROTATE_PAINT; break;
+					case "Nearest Neighbour": intAlgorithm = Image.NEAREST_NEIGHBOUR; break;
+					case "Bilinear Interpolation": intAlgorithm = Image.BILINEAR_INTERPOLATION; break;
+					default: intAlgorithm = 0; break;
+				}
+				return new int[] { angle, intAlgorithm};
 			}
 
 		};

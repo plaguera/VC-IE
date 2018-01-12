@@ -40,10 +40,13 @@ public class Filter {
 	}
 
 	public static Kernel gauss(double theta, boolean horizontal) {
-		int size = 5;
-		float[] data = new float[size * 2 + 1];
+		int w = (int) Math.round(7.4 * theta);
+		if(w % 2 == 0)
+			w++;
+		float[] data = new float[w];
+		int fold = (w - 1) / 2;
 		for (int i = 0; i < data.length; i++) {
-			double up = Math.pow(i - size, 2);
+			double up = Math.pow(i - fold, 2); // w ≠ -5 - 5
 			double down = 2 * Math.pow(theta, 2);
 			data[i] = (float) (1000 * Math.exp(-(up / down)));
 		}
@@ -53,9 +56,9 @@ public class Filter {
 		for (int i = 0; i < data.length; i++)
 			data[i] /= sum;
 		if (horizontal)
-			return new Kernel(size * 2 + 1, 1, data);
+			return new Kernel(w, 1, data);
 		else
-			return new Kernel(1, size * 2 + 1, data);
+			return new Kernel(1, w, data);
 	}
 
 }

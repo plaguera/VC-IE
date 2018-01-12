@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
-import image.Rotation;
-
 public class RotateBilinearInterpolation extends Rotation {
 
 	public RotateBilinearInterpolation(BufferedImage image) {

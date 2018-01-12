@@ -1,4 +1,4 @@
-package image;
+package rotation;
 
 import java.awt.Dimension;
 import java.awt.Point;

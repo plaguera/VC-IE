@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.Observable;
 
 import pane.linearTransformation.FunctionSegment;
+import rotation.RotateAndPaint;
 import rotation.RotateBilinearInterpolation;
+import rotation.RotateNearestNeighbour;
+import rotation.Rotation;
 import utils.ColorUtils;
 import utils.DLL;
 import utils.HistogramUtils;
@@ -383,6 +386,18 @@ public class Image extends Observable {
 		changed();
 		blacks = aux;
 	}
+	
+	public void rotate(double angle, int algorithm) {
+		Rotation operation = null;
+		switch(algorithm) {
+			case Image.ROTATE_PAINT: operation = new RotateAndPaint(lastCommit()); break;
+			case Image.NEAREST_NEIGHBOUR: operation = new RotateNearestNeighbour(lastCommit()); break;
+			case Image.BILINEAR_INTERPOLATION: operation = new RotateBilinearInterpolation(lastCommit()); break;
+			default: break;
+		}
+		getDll().add(operation.rotate(angle));
+		changed();
+	}
 
 	public void convolute(Kernel kernel) {
 		float[][] k = ImageUtils.doubleArrayDimension(kernel);
@@ -565,18 +580,6 @@ public class Image extends Observable {
 
 	public BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
-	}
-	
-	public void rotate(double angle, int algorithm) {
-		Rotation operation = null;
-		switch(algorithm) {
-			case Image.ROTATE_PAINT: operation = new RotateAndPaint(lastCommit()); break;
-			case Image.NEAREST_NEIGHBOUR: operation = new RotateNearestNeighbour(lastCommit()); break;
-			case Image.BILINEAR_INTERPOLATION: operation = new RotateBilinearInterpolation(lastCommit()); break;
-			default: break;
-		}
-		getDll().add(operation.rotate(angle));
-		changed();
 	}
 
 }

@@ -1,4 +1,4 @@
-package image;
+package rotation;
 
 import java.awt.Color;
 import java.awt.Dimension;

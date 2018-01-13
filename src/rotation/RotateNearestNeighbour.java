@@ -1,6 +1,5 @@
 package rotation;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
@@ -19,8 +18,8 @@ public class RotateNearestNeighbour extends Rotation {
 		int newWidth = (int) newDim.getWidth();
 		int newHeight = (int) newDim.getHeight();
 
-		BufferedImage dst = new BufferedImage(newWidth, newHeight, getImage().getType());
-
+		BufferedImage dst = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+		
 		double oldIradius = (double) (height - 1) / 2;
 		double oldJradius = (double) (width - 1) / 2;
 
@@ -40,7 +39,6 @@ public class RotateNearestNeighbour extends Rotation {
 		int oi, oj;
 
 		ci = -newIradius;
-		Color fill = new Color(0, 0, 0);
 		for (int i = 0; i < newHeight; i++) {
 			cj = -newJradius;
 			for (int j = 0; j < newWidth; j++) {
@@ -51,7 +49,8 @@ public class RotateNearestNeighbour extends Rotation {
 				// validate source pixel's coordinates
 				if ((oi < 0) || (oj < 0) || (oi >= height) || (oj >= width)) {
 					// fill destination image with filler
-					dst.setRGB(j, i, fill.getRGB());
+					dst.setRGB(j, i, 0);
+					//System.out.println(Integer.toHexString(dst.getRGB(j, i)));
 				} else {
 					dst.setRGB(j, i, getImage().getRGB(oj, oi));
 				}

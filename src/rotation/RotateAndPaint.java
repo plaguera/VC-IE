@@ -17,7 +17,7 @@ public class RotateAndPaint extends Rotation {
 		int height = getHeight();
 		int newWidth = (int) newDimensions.getWidth();
 		int newHeight = (int) newDimensions.getHeight();
-		BufferedImage dst = new BufferedImage(newWidth, newHeight, getImage().getType());
+		BufferedImage dst = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 		for(int i = 0; i < newWidth; i++)
 			for(int j = 0; j < newHeight; j++)
 				dst.setRGB(i, j, 0);

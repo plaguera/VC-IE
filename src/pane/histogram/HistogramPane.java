@@ -52,64 +52,21 @@ public class HistogramPane extends JPanel  {
 	}
 	
 	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-	}
+	protected void paintComponent(Graphics g) { super.paintComponent(g); }
 	
-	public JTabbedPane getTabbedPane() {
-		return tabbedPane;
-	}
-
-	public Histogram getHistRed() {
-		return histRed;
-	}
-
-	public Histogram getHistGreen() {
-		return histGreen;
-	}
-
-	public Histogram getHistBlue() {
-		return histBlue;
-	}
-
-	public Histogram getHistGray() {
-		return histGray;
-	}
-
-	public JLabel getLbColorValue() {
-		return lbColorValue;
-	}
-
-	public JLabel getLbCount() {
-		return lbCount;
-	}
-
-	public void setTabbedPane(JTabbedPane tabbedPane) {
-		this.tabbedPane = tabbedPane;
-	}
-
-	public void setHistRed(Histogram histRed) {
-		this.histRed = histRed;
-	}
-
-	public void setHistGreen(Histogram histGreen) {
-		this.histGreen = histGreen;
-	}
-
-	public void setHistBlue(Histogram histBlue) {
-		this.histBlue = histBlue;
-	}
-
-	public void setHistGray(Histogram histGray) {
-		this.histGray = histGray;
-	}
-
-	public void setLbColorValue(JLabel lbColorValue) {
-		this.lbColorValue = lbColorValue;
-	}
-
-	public void setLbCount(JLabel lbCount) {
-		this.lbCount = lbCount;
-	}
+	public JTabbedPane getTabbedPane() { return tabbedPane; }
+	public Histogram getHistRed() { return histRed; }
+	public Histogram getHistGreen() { return histGreen; }
+	public Histogram getHistBlue() { return histBlue; }
+	public Histogram getHistGray() { return histGray; }
+	public JLabel getLbColorValue() { return lbColorValue; }
+	public JLabel getLbCount() { return lbCount; }
+	public void setTabbedPane(JTabbedPane tabbedPane) { this.tabbedPane = tabbedPane; }
+	public void setHistRed(Histogram histRed) { this.histRed = histRed; }
+	public void setHistGreen(Histogram histGreen) { this.histGreen = histGreen; }
+	public void setHistBlue(Histogram histBlue) { this.histBlue = histBlue; }
+	public void setHistGray(Histogram histGray) { this.histGray = histGray; }
+	public void setLbColorValue(JLabel lbColorValue) { this.lbColorValue = lbColorValue; }
+	public void setLbCount(JLabel lbCount) { this.lbCount = lbCount; }
 
 }

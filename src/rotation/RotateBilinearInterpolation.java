@@ -19,7 +19,7 @@ public class RotateBilinearInterpolation extends Rotation {
 		int newWidth = (int) newDim.getWidth();
 		int newHeight = (int) newDim.getHeight();
 
-		BufferedImage dst = new BufferedImage(newWidth, newHeight, getImage().getType());
+		BufferedImage dst = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 		
 		double oldIradius = (double) ( height  - 1 ) / 2;
         double oldJradius = (double) ( width - 1 ) / 2;
@@ -45,7 +45,6 @@ public class RotateBilinearInterpolation extends Rotation {
         int jmax = width - 1;
         
         ci = -newIradius;
-        Color fill = new Color(0, 0, 0);
         for (int i = 0; i < newHeight; i++) {
             
             // do some pre-calculations of source points' coordinates
@@ -68,7 +67,7 @@ public class RotateBilinearInterpolation extends Rotation {
                 // validate source pixel's coordinates
                 if ( ( oi1 < 0 ) || ( oj1 < 0 ) || ( oi1 >= height ) || ( oj1 >= width ) ){
                     // fill destination image with filler
-                    dst.setRGB(j, i, fill.getRGB());
+                    dst.setRGB(j, i, 0);
                 }
                 else{
                     // bottom-right coordinate

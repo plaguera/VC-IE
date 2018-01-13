@@ -14,6 +14,17 @@ public class Color {
 	public static final int GRAY = 4;
 
 	public static final int N_COLORS = 256;
+	
+	public static int[][] matrix(BufferedImage image) {
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int[][] matrix = new int[width][height];
+
+		for (int j = 0; j < width; j++)
+			for (int i = 0; i < height; i++)
+				matrix[j][i] = image.getRGB(i, j);
+		return matrix;
+	}
 
 	public static int[][] matrix(BufferedImage image, int color) {
 		switch (color) {
@@ -400,17 +411,6 @@ public class Color {
 		double bG = Math.pow(aG, gamma);
 		double bB = Math.pow(aB, gamma);
 		return Color.rgbToInt((int) (bR * 255), (int) (bG * 255), (int) (bB * 255), Color.alpha(color));
-	}
-
-	public static RGB[][] getLUT(BufferedImage image) {
-		int width = image.getWidth();
-		int height = image.getHeight();
-		RGB[][] lut = new RGB[width][height];
-
-		for (int i = 0; i < height; i++)
-			for (int j = 0; j < width; j++)
-				lut[j][i] = new RGB(image.getRGB(j, i));
-		return lut;
 	}
 
 	public static int[] specify(double[] pO, double[] pR) {

@@ -15,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 
 import image.Image;
+import rotation.Rotation;
 
 public abstract class GeometricDialog {
 
@@ -85,9 +86,9 @@ public abstract class GeometricDialog {
 				int angle = (Integer) spinner.getValue() * intDirection;
 				int intAlgorithm;
 				switch (stringAlgorithm) {
-					case "Rotate + Paint": intAlgorithm = Image.ROTATE_PAINT; break;
-					case "Nearest Neighbour": intAlgorithm = Image.NEAREST_NEIGHBOUR; break;
-					case "Bilinear Interpolation": intAlgorithm = Image.BILINEAR_INTERPOLATION; break;
+					case "Rotate + Paint": intAlgorithm = Rotation.ROTATE_PAINT; break;
+					case "Nearest Neighbour": intAlgorithm = Rotation.NEAREST_NEIGHBOUR; break;
+					case "Bilinear Interpolation": intAlgorithm = Rotation.BILINEAR_INTERPOLATION; break;
 					default: intAlgorithm = 0; break;
 				}
 				return new int[] { angle, intAlgorithm};

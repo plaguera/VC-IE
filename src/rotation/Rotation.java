@@ -8,6 +8,10 @@ import java.util.Collections;
 
 public abstract class Rotation {
 	
+	public static final int ROTATE_PAINT = 1;
+	public static final int NEAREST_NEIGHBOUR = 2;
+	public static final int BILINEAR_INTERPOLATION = 3;
+	
 	private Dimension dimension;
 	private BufferedImage image;
 	

@@ -26,18 +26,10 @@ import utils.ImageUtils;
 
 public class Image extends Observable {
 	
-	public static final int ROTATE_PAINT = 1;
-	public static final int NEAREST_NEIGHBOUR = 2;
-	public static final int BILINEAR_INTERPOLATION = 3;
-
 	private BufferedImage original;
 	private DLL<BufferedImage> dll;
 	private String path;
 	
-	private int[][] red, green, blue, gray;
-
-	public int blacks = 0;
-
 	public Image(String path) {
 		setPath(path);
 		setDll(new DLL<BufferedImage>(ImageUtils.readImage(getPath())));
@@ -381,17 +373,15 @@ public class Image extends Observable {
 		image.rotate(degrees);
 
 		getDll().add(image.getBufferedImage());
-		int aux = blacks;
 		changed();
-		blacks = aux;
 	}
 	
 	public void rotate(double angle, int algorithm) {
 		Rotation operation = null;
 		switch(algorithm) {
-			case Image.ROTATE_PAINT: operation = new RotateAndPaint(lastCommit()); break;
-			case Image.NEAREST_NEIGHBOUR: operation = new RotateNearestNeighbour(lastCommit()); break;
-			case Image.BILINEAR_INTERPOLATION: operation = new RotateBilinearInterpolation(lastCommit()); break;
+			case Rotation.ROTATE_PAINT: operation = new RotateAndPaint(lastCommit()); break;
+			case Rotation.NEAREST_NEIGHBOUR: operation = new RotateNearestNeighbour(lastCommit()); break;
+			case Rotation.BILINEAR_INTERPOLATION: operation = new RotateBilinearInterpolation(lastCommit()); break;
 			default: break;
 		}
 		getDll().add(operation.rotate(angle));
@@ -530,7 +520,6 @@ public class Image extends Observable {
 		setChanged();
 		notifyObservers();
 		System.out.println(getDll());
-		blacks = blacks();
 	}
 
 	public int blacks() {
@@ -574,43 +563,10 @@ public class Image extends Observable {
 
 	public void setDll(DLL<BufferedImage> dll) {
 		this.dll = dll;
-		this.blacks = blacks();
 	}
 
 	public BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
-	}
-
-	public int[][] getRed() {
-		return red;
-	}
-
-	public int[][] getGreen() {
-		return green;
-	}
-
-	public int[][] getBlue() {
-		return blue;
-	}
-
-	public int[][] getGray() {
-		return gray;
-	}
-
-	public void setRed(int[][] red) {
-		this.red = red;
-	}
-
-	public void setGreen(int[][] green) {
-		this.green = green;
-	}
-
-	public void setBlue(int[][] blue) {
-		this.blue = blue;
-	}
-
-	public void setGray(int[][] gray) {
-		this.gray = gray;
 	}
 
 }

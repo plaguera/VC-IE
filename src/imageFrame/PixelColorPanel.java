@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import image.Panel;
-import image.RGB;
 
 @SuppressWarnings("serial")
 public class PixelColorPanel extends Panel {
@@ -34,51 +33,26 @@ public class PixelColorPanel extends Panel {
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-	}
+	protected void paintComponent(Graphics g) { super.paintComponent(g); }
 
-	public void setColor(int colorInt, int x, int y) {
-		RGB color = new RGB(colorInt);
+	public void setColor(int color, int x, int y) {
 		getLabelCoord().setText("x = " + x + ", y = " + y);
-		getLabelRGB().setText("<html>[<font color='red'>" + color.getRed() + "</font>, <font color='green'>"
-				+ color.getGreen() + "</font>, <font color='blue'>" + color.getBlue() + "</font>]</html>");
+		getLabelRGB().setText("<html>[<font color='red'>" + utils.Color.red(color) + "</font>, <font color='green'>"
+				+ utils.Color.green(color) + "</font>, <font color='blue'>" + utils.Color.blue(color) + "</font>, "
+				+ utils.Color.alpha(color) + "]</html>");
 		getLabelOthers()
-				.setText("<html>" + String.format("(#%02x%02x%02x)", color.getRed(), color.getGreen(), color.getBlue())
-						+ ", [<font color='gray'>" + color.gray() + "</font>]</html>");
-		getPanel().setColor(new Color(colorInt));
+				.setText("<html>" + Integer.toHexString(color)
+						+ ", [<font color='gray'>" + utils.Color.gray(color) + "</font>]</html>");
+		getPanel().setColor(new Color(color));
 	}
 
-	public JLabel getLabelCoord() {
-		return labelCoord;
-	}
-
-	public JLabel getLabelRGB() {
-		return labelRGB;
-	}
-
-	public JLabel getLabelOthers() {
-		return labelOthers;
-	}
-
-	public ColorPanel getPanel() {
-		return panel;
-	}
-
-	public void setLabelCoord(JLabel labelCoord) {
-		this.labelCoord = labelCoord;
-	}
-
-	public void setLabelRGB(JLabel labelRGB) {
-		this.labelRGB = labelRGB;
-	}
-
-	public void setLabelOthers(JLabel labelOthers) {
-		this.labelOthers = labelOthers;
-	}
-
-	public void setPanel(ColorPanel panel) {
-		this.panel = panel;
-	}
+	public JLabel getLabelCoord() { return labelCoord; }
+	public JLabel getLabelRGB() { return labelRGB; }
+	public JLabel getLabelOthers() { return labelOthers; }
+	public ColorPanel getPanel() { return panel; }
+	public void setLabelCoord(JLabel labelCoord) { this.labelCoord = labelCoord; }
+	public void setLabelRGB(JLabel labelRGB) { this.labelRGB = labelRGB; }
+	public void setLabelOthers(JLabel labelOthers) { this.labelOthers = labelOthers; }
+	public void setPanel(ColorPanel panel) { this.panel = panel; }
 
 }

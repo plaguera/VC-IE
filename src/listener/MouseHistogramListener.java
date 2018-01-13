@@ -23,7 +23,9 @@ public class MouseHistogramListener implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		int x = e.getX();
+		int x = e.getX(), y = e.getY();
+		if(y <= Histogram.MARGIN || y > (pane.getHeight() - Histogram.MARGIN))
+			return;
 		if(x > Histogram.MARGIN && x < (pane.getWidth() - Histogram.MARGIN)) {
 			x -= Histogram.MARGIN;
 			int width = pane.getWidth() - (Histogram.MARGIN * 2);

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -35,13 +36,17 @@ public class ImageUtils {
 	public static final double NTSC_BLUE = 0.0722;
 
 	public static BufferedImage readImage(String file) {
-		BufferedImage aux = null;
+		BufferedImage in = null;
 		try {
-			aux = ImageIO.read(new File(file));
+			in = ImageIO.read(new File(file));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return aux;
+		BufferedImage out = new BufferedImage(in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = out.createGraphics();
+		g.drawImage(in, 0, 0, in.getWidth(), in.getHeight(), null);
+		g.dispose();
+		return out;
 	}
 
 	public static File openImage() {
@@ -111,7 +116,7 @@ public class ImageUtils {
 	}
 
 	public static BufferedImage copyImage(BufferedImage original) {
-		BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+		BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.getGraphics();
 		g.drawImage(original, 0, 0, null);
 		g.dispose();

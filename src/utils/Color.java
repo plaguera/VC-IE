@@ -19,15 +19,8 @@ public class Color {
 			case GREEN: return greenMatrix(image);
 			case BLUE: return blueMatrix(image);
 			case GRAY: return grayMatrix(image);
-			default: break;
+			default: return null;
 		}
-		int width = image.getWidth();
-		int height = image.getHeight();
-		int[][] result = new int[width][height];
-		for(int i = 0; i < width; i++)
-			for(int j = 0; j < height; j++)
-				result[i][j] = Color.red(image.getRGB(i, j));
-		return result;
 	}
 	
 	public static int[][] redMatrix(BufferedImage image) {
@@ -35,8 +28,12 @@ public class Color {
 		int height = image.getHeight();
 		int[][] result = new int[width][height];
 		for(int i = 0; i < width; i++)
-			for(int j = 0; j < height; j++)
-				result[i][j] = Color.red(image.getRGB(i, j));
+			for(int j = 0; j < height; j++) {
+				if(Color.alpha(image.getRGB(i, j)) == 0)
+					result[i][j] = -1;
+				else
+					result[i][j] = Color.red(image.getRGB(i, j));
+			}
 		return result;
 	}
 	
@@ -45,8 +42,12 @@ public class Color {
 		int height = image.getHeight();
 		int[][] result = new int[width][height];
 		for(int i = 0; i < width; i++)
-			for(int j = 0; j < height; j++)
-				result[i][j] = Color.green(image.getRGB(i, j));
+			for(int j = 0; j < height; j++) {
+				if(Color.alpha(image.getRGB(i, j)) == 0)
+					result[i][j] = -1;
+				else
+					result[i][j] = Color.green(image.getRGB(i, j));
+			}
 		return result;
 	}
 	
@@ -55,8 +56,12 @@ public class Color {
 		int height = image.getHeight();
 		int[][] result = new int[width][height];
 		for(int i = 0; i < width; i++)
-			for(int j = 0; j < height; j++)
-				result[i][j] = Color.blue(image.getRGB(i, j));
+			for(int j = 0; j < height; j++) {
+				if(Color.alpha(image.getRGB(i, j)) == 0)
+					result[i][j] = -1;
+				else
+					result[i][j] = Color.blue(image.getRGB(i, j));
+			}
 		return result;
 	}
 	
@@ -65,27 +70,23 @@ public class Color {
 		int height = image.getHeight();
 		int[][] result = new int[width][height];
 		for(int i = 0; i < width; i++)
-			for(int j = 0; j < height; j++)
-				result[i][j] = Color.gray(image.getRGB(i, j));
+			for(int j = 0; j < height; j++) {
+				if(Color.alpha(image.getRGB(i, j)) == 0)
+					result[i][j] = -1;
+				else
+					result[i][j] = Color.gray(image.getRGB(i, j));
+			}
 		return result;
 	}
 	
-	public static int red(int color) {
-		 return (color >> 16) & 0xff;
-	}
-	
-	public static int green(int color) {
-		 return (color >>  8) & 0xff;
-	}
-	
-	public static int blue(int color) {
-		 return (color      ) & 0xff;
-	}
-	
+	public static int alpha(int color) { return (color >>  24) & 0xff; }
+	public static int red(int color) { return (color >> 16) & 0xff; }
+	public static int green(int color) { return (color >>  8) & 0xff; }
+	public static int blue(int color) { return (color      ) & 0xff; }
 	public static int gray(int color) {
-		 int R = (color >> 16) & 0xff;
-		 int G = (color >>  8) & 0xff;
-		 int B = (color      ) & 0xff;
+		 int R = Color.red(color);
+		 int G = Color.green(color);
+		 int B = Color.blue(color);
 		 return (int) (R * NTSC_RED + G * NTSC_GREEN + B * NTSC_BLUE);
 	}
 

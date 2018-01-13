@@ -123,7 +123,8 @@ public class Histogram extends Pane implements Observer {
 
 		for (int[] row : getData())
 			for (int i : row)
-				values[i] = values[i] + 1;
+				if(i != -1)
+					values[i] = values[i] + 1;
 		
 		if (mode == CUMULATIVE)
 			for (int i = 1; i < 256; i++)

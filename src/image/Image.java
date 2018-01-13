@@ -22,31 +22,27 @@ import util.MathUtil;
 
 public class Image extends Observable {
 	
-	private BufferedImage original;
 	private DLL<BufferedImage> dll;
 	private String path;
 	
 	public Image(String path) {
 		setPath(path);
 		setDll(new DLL<BufferedImage>(ImageUtils.readImage(getPath())));
-		setOriginal(ImageUtils.readImage(getPath()));
 	}
 
 	public Image(Image image) {
 		setPath(image.getPath());
 		setDll(new DLL<BufferedImage>(image.get()));
-		setOriginal(ImageUtils.copyImage(image.get()));
 	}
 
 	public Image(BufferedImage image, String path) {
 		setPath(path);
 		setDll(new DLL<BufferedImage>(image));
-		setOriginal(ImageUtils.copyImage(image));
 	}
-
-	public Dimension getSize() {
-		return new Dimension(get().getWidth(), get().getHeight());
-	}
+	
+	public int getWidth() { return get().getWidth(); }
+	public int getHeight() { return get().getHeight(); }
+	public Dimension getSize() { return new Dimension(get().getWidth(), get().getHeight()); }
 
 	public String getFileName() {
 		if (getPath() == null)
@@ -54,50 +50,23 @@ public class Image extends Observable {
 		return ImageUtils.getNameFromPath(getPath());
 	}
 
-	public String getFormat() {
-		return ImageUtils.getExtFromName(getFileName());
+	public String getFormat() { return ImageUtils.getExtFromName(getFileName()); }
+	public String getResolution() { return get().getWidth() + "x" + get().getHeight(); }
+	
+	public void changed() {
+		setChanged();
+		notifyObservers();
+		System.out.println(getDll());
 	}
 
-	public String getResolution() {
-		return get().getWidth() + "x" + get().getHeight();
-	}
-
-	public void subimage(int x, int y, int w, int h) {
-		getDll().add(get().getSubimage(x, y, w, h));
-		changed();
-	}
-
-	public void commit() {
-		getDll().commit();
-	}
-
-	public void ctrlZ() {
-		getDll().backward();
-		changed();
-	}
-
-	public void ctrlY() {
-		getDll().forward();
-		changed();
-	}
-
-	public void toGrayScale() {
-		getDll().add(ImageUtils.changeImageType(get(), BufferedImage.TYPE_BYTE_GRAY));
-		changed();
-	}
-
-	public void reset() {
-		getDll().toBeginning();
-		changed();
-	}
-
-	public int getWidth() {
-		return get().getWidth();
-	}
-
-	public int getHeight() {
-		return get().getHeight();
-	}
+	public void commit() { getDll().commit(); }
+	public BufferedImage lastCommit() { return getDll().lastCommit().getValue(); }
+	public void ctrlZ() { getDll().backward(); changed(); }
+	public void ctrlY() { getDll().forward(); changed(); }
+	public void reset() { getDll().toBeginning(); changed(); }
+	
+	public void toGrayScale() { getDll().add(ImageUtils.changeImageType(get(), BufferedImage.TYPE_BYTE_GRAY)); changed(); }
+	public void subimage(int x, int y, int w, int h) { getDll().add(get().getSubimage(x, y, w, h)); changed(); }
 
 	public void adjustment(double brightness, double contrast) {
 		BufferedImage image = ImageUtils.copyImage(lastCommit());
@@ -236,7 +205,6 @@ public class Image extends Observable {
 						sample[i][j] = image.getRGB(col + i, row + j);
 
 				int average = util.Color.average(sample);
-
 				for (int i = col; i < col + side; i++)
 					for (int j = row; j < row + side; j++)
 						image.setRGB(i, j, average);
@@ -354,14 +322,6 @@ public class Image extends Observable {
 		getDll().add(bilinearScaleOp.filter(get(), new BufferedImage(width, height, get().getType())));
 		changed();
 	}
-
-	public void rotateN(int degrees) {
-		javaxt.io.Image image = new javaxt.io.Image(lastCommit());
-		image.rotate(degrees);
-
-		getDll().add(image.getBufferedImage());
-		changed();
-	}
 	
 	public void rotate(double angle, int algorithm) {
 		Rotation operation = null;
@@ -404,7 +364,7 @@ public class Image extends Observable {
 				double newValue = 0.0;
 				for (int kw = kernelWidth - 1; kw >= 0; kw--)
 					for (int kh = kernelHeight - 1; kh >= 0; kh--)
-						newValue += kernel[kh][kw] * array[bound(i + kw - kernelWidthRadius, inputWidth)][bound(
+						newValue += kernel[kh][kw] * array[MathUtil.bound(i + kw - kernelWidthRadius, inputWidth)][MathUtil.bound(
 								j + kh - kernelHeightRadius, inputHeight)];
 				result[i][j] = MathUtil.truncate((int) Math.round(newValue / kernelDivisor));
 			}
@@ -418,50 +378,10 @@ public class Image extends Observable {
 		changed();
 	}
 
-	private static int bound(int value, int endIndex) {
-		if (value < 0)
-			return 0;
-		if (value < endIndex)
-			return value;
-		return endIndex - 1;
-	}
-
-	public void changed() {
-		setChanged();
-		notifyObservers();
-		System.out.println(getDll());
-	}
-
-	public BufferedImage get() {
-		return dll.getCurrent().getValue();
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public BufferedImage getOriginal() {
-		return original;
-	}
-
-	public DLL<BufferedImage> getDll() {
-		return dll;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public void setOriginal(BufferedImage original) {
-		this.original = original;
-	}
-
-	public void setDll(DLL<BufferedImage> dll) {
-		this.dll = dll;
-	}
-
-	public BufferedImage lastCommit() {
-		return getDll().lastCommit().getValue();
-	}
+	public BufferedImage get() { return dll.getCurrent().getValue(); }
+	public String getPath() { return path; }
+	public DLL<BufferedImage> getDll() { return dll; }
+	public void setPath(String path) { this.path = path; }
+	public void setDll(DLL<BufferedImage> dll) { this.dll = dll; }
 
 }

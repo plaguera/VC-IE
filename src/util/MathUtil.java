@@ -40,5 +40,13 @@ public class MathUtil {
 		}
 		return data;
 	}
+	
+	public static int bound(int value, int endIndex) {
+		if (value < 0)
+			return 0;
+		if (value < endIndex)
+			return value;
+		return endIndex - 1;
+	}
 
 }

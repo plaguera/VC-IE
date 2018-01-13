@@ -495,15 +495,6 @@ public class Image extends Observable {
 		System.out.println(getDll());
 	}
 
-	public int blacks() {
-		int count = 0;
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++)
-				if (get().getRGB(col, row) == 0)
-					count++;
-		return count;
-	}
-
 	public static double log2(double value) {
 		if (value == 0)
 			return 0;

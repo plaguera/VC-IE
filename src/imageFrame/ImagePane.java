@@ -68,6 +68,11 @@ public class ImagePane extends Panel {
 		});
 		
 	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+	}
 
 	public Image getImage() { return image; }
 	public JTabbedPane getTabbedPane() { return tabbedPane; }
@@ -149,8 +154,8 @@ public class ImagePane extends Panel {
 		}
 
 		private Dimension scaleBack() {
-			int width = getImage().getWidth();
-			int height = getImage().getHeight();
+			int width = getImage().get().getWidth();
+			int height = getImage().get().getHeight();
 			int maxW = (int) ((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.75);
 			int maxH = (int) ((int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.75);
 			int auxW = width, auxH = height;
@@ -164,6 +169,7 @@ public class ImagePane extends Panel {
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
+			setPreferredSize();
 			g.drawImage(image.get(), 0, 0, getWidth(), getHeight(), this);
 			if (isROI() && isDrag()) {
 				g.setColor(ROI_COLOR);

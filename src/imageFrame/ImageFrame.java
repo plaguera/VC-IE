@@ -225,22 +225,18 @@ public class ImageFrame extends Frame implements Observer {
 				setLocationRelativeTo(null);
 			}
 		});
-
+		
 		getMntmUndo().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlZ();
-				getImagePane().getImagePanel().setPreferredSize();
-				getImagePane().repaint();
-				pack();
+				refresh();
 			}
 		});
 
 		getMntmRedo().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlY();
-				getImagePane().getImagePanel().setPreferredSize();
-				getImagePane().repaint();
-				pack();
+				refresh();
 			}
 		});
 		
@@ -271,10 +267,9 @@ public class ImageFrame extends Frame implements Observer {
 		getMntmTrans().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().transpose();
+				refresh();
 			}
 		});
-
-		ImageFrame frame = this;
 		
 		getMntmRotate().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -282,10 +277,7 @@ public class ImageFrame extends Frame implements Observer {
 				angles.add(dirDeg[0]);
 				int degrees = angles.stream().mapToInt(Integer::intValue).sum();
 				getImage().rotate(degrees, dirDeg[1]);
-				
-				frame.getImagePane().getImagePanel().setPreferredSize();
-				frame.getImagePane().repaint();
-				frame.pack();
+				refresh();
 			}
 		});
 		
@@ -293,9 +285,7 @@ public class ImageFrame extends Frame implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				int[] newWH = GeometricDialog.SCALE_DIALOG().launch(getImage());
 				getImage().scale(newWH[0], newWH[1], newWH[2]);
-				frame.getImagePane().getImagePanel().setPreferredSize();
-				frame.getImagePane().repaint();
-				frame.pack();
+				refresh();
 			}
 		});
 		
@@ -362,7 +352,6 @@ public class ImageFrame extends Frame implements Observer {
 		getMntmConvolve().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().convolute(FilterDialog.CONVOLVE_DIALOG().launch());
-				
 			}
 		});
 
@@ -372,9 +361,11 @@ public class ImageFrame extends Frame implements Observer {
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
 					getImage().ctrlZ();
+					refresh();
 				}
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
 					getImage().ctrlY();
+					refresh();
 				}
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 				}
@@ -390,6 +381,12 @@ public class ImageFrame extends Frame implements Observer {
 		});
 	}
 
+	private void refresh() {
+		this.getImagePane().getImagePanel().setPreferredSize();
+		this.getImagePane().repaint();
+		this.pack();
+	}
+	
 	public Image getImage() { return image; }
 	public JTabbedPane getTabbedPane() { return tabbedPane; }
 	public ImagePane getImagePane() { return imagePane; }

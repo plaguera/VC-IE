@@ -11,8 +11,6 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 
@@ -25,7 +23,6 @@ import utils.ColorUtils;
 import utils.DLL;
 import utils.HistogramUtils;
 import utils.ImageUtils;
-import utils.Square;
 
 public class Image extends Observable {
 	
@@ -36,6 +33,8 @@ public class Image extends Observable {
 	private BufferedImage original;
 	private DLL<BufferedImage> dll;
 	private String path;
+	
+	private int[][] red, green, blue, gray;
 
 	public int blacks = 0;
 
@@ -580,6 +579,38 @@ public class Image extends Observable {
 
 	public BufferedImage lastCommit() {
 		return getDll().lastCommit().getValue();
+	}
+
+	public int[][] getRed() {
+		return red;
+	}
+
+	public int[][] getGreen() {
+		return green;
+	}
+
+	public int[][] getBlue() {
+		return blue;
+	}
+
+	public int[][] getGray() {
+		return gray;
+	}
+
+	public void setRed(int[][] red) {
+		this.red = red;
+	}
+
+	public void setGreen(int[][] green) {
+		this.green = green;
+	}
+
+	public void setBlue(int[][] blue) {
+		this.blue = blue;
+	}
+
+	public void setGray(int[][] gray) {
+		this.gray = gray;
 	}
 
 }

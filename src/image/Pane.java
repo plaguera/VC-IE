@@ -11,7 +11,7 @@ public class Pane extends JPanel {
 
 	public Pane(Image image) {
 		setImage(image);
-		setPreferredSize(new Dimension(200, 100));
+		setPreferredSize(new Dimension(500, 300));
 	}
 
 	public Image getImage() {

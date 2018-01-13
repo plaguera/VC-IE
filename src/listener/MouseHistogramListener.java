@@ -5,45 +5,42 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JLabel;
 
-import pane.histogram.HistogramPaneTab;
-import utils.HistogramLayer;
+import pane.histogram.Histogram;
 
 public class MouseHistogramListener implements MouseMotionListener {
 	
-	private HistogramPaneTab pane;
+	private Histogram pane;
 	private JLabel lbValue, lbCount;
 	
-	public MouseHistogramListener(HistogramPaneTab pane, JLabel value, JLabel count) {
+	public MouseHistogramListener(Histogram pane, JLabel value, JLabel count) {
 		setPane(pane);
 		setLbValue(value);
 		setLbCount(count);
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent arg0) {;}
+	public void mouseDragged(MouseEvent e) {;}
 
 	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		int x = arg0.getX();
-		HistogramLayer aux = getPane().getLayers().get(0);
-		int[] values = aux.getValues();
-		int bar_width = 2, value = x;
-		if(x >= 5 && x < (256 * bar_width) + 5) {
-			value = x - 6;
-			value /= bar_width;
-			if(value < 0 || value > 255)
-				return;
-			getLbValue().setText(String.valueOf(value));
-			getLbCount().setText(String.valueOf(values[value]));
+	public void mouseMoved(MouseEvent e) {
+		int x = e.getX();
+		if(x > Histogram.MARGIN && x < (pane.getWidth() - Histogram.MARGIN)) {
+			x -= Histogram.MARGIN;
+			int width = pane.getWidth() - (Histogram.MARGIN * 2);
+			double barWidth = (double) width / 256d;
+			x = (int) (x / barWidth);
+			int value = pane.getValues()[x];
+			getLbValue().setText(String.valueOf(x));
+			getLbCount().setText(String.valueOf(value));
+			//System.out.println((x / barWidth) + " = " + value);
 		}
-		
 	}
 
-	public HistogramPaneTab getPane() {
+	public Histogram getPane() {
 		return pane;
 	}
 
-	public void setPane(HistogramPaneTab pane) {
+	public void setPane(Histogram pane) {
 		this.pane = pane;
 	}
 	

@@ -29,7 +29,6 @@ public class ImageProcessor {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					ImageUtils.launchFrame(new ImageFrame(startWindow()));
-					//ImageUtils.launchFrame(new ImageFrame("/Users/peter/Drive/VC/lena.png"));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

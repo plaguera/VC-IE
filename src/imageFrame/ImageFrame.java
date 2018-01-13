@@ -67,7 +67,6 @@ public class ImageFrame extends Frame implements Observer {
 		
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		getImage().addObserver(getHistogramPane());
 		
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
@@ -84,6 +83,7 @@ public class ImageFrame extends Frame implements Observer {
 		setHistogramPane(new HistogramPane(getImage()));
 		setPropertiesPane(new PropertiesPane(getImage()));
 		getPropertiesPane().setVisible(false);
+		
 		getTabbedPane().addTab("Operations", getImagePane());
 		getTabbedPane().addTab("Histogram", getHistogramPane());
 		getTabbedPane().addChangeListener(new ChangeListener() {
@@ -93,7 +93,7 @@ public class ImageFrame extends Frame implements Observer {
 		});
 		getImage().addObserver(this);
 		getImage().addObserver(getPropertiesPane());
-		getImage().addObserver(getHistogramPane());
+		
 		add(getTabbedPane(), BorderLayout.CENTER);
 		add(getPropertiesPane(), BorderLayout.WEST);
 		menuBar();

@@ -1,5 +1,6 @@
 package pane.properties;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -23,6 +24,7 @@ public class PropertiesPane extends Pane implements Observer {
 	public PropertiesPane(Image image) {
 		super(image);
 		setLayout(new GridLayout(7, 1));
+		setPreferredSize(new Dimension(200, 100));
 
 		categFormat = new JLabel(getImage().getFormat());
 		categFormat.setBorder(BorderFactory.createTitledBorder("Format"));

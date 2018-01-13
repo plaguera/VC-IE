@@ -52,6 +52,7 @@ public class ImagePane extends Panel {
 		aux.add(getTabbedPane(), BorderLayout.NORTH);
 		aux.add(getPixelColorPanel(), BorderLayout.CENTER);
 		aux.add(getBtnReset(), BorderLayout.SOUTH);
+		aux.setPreferredSize(new Dimension(200, 500));
 		add(getImagePanel(), BorderLayout.CENTER);
 		add(aux, BorderLayout.EAST);
 		getTabbedPane().addTab("Brightness / Contrast", new LinearAdjustmentPane(getImage()));

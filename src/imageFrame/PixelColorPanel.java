@@ -37,12 +37,12 @@ public class PixelColorPanel extends Panel {
 
 	public void setColor(int color, int x, int y) {
 		getLabelCoord().setText("x = " + x + ", y = " + y);
-		getLabelRGB().setText("<html>[<font color='red'>" + utils.Color.red(color) + "</font>, <font color='green'>"
-				+ utils.Color.green(color) + "</font>, <font color='blue'>" + utils.Color.blue(color) + "</font>, "
-				+ utils.Color.alpha(color) + "]</html>");
+		getLabelRGB().setText("<html>[<font color='red'>" + util.Color.red(color) + "</font>, <font color='green'>"
+				+ util.Color.green(color) + "</font>, <font color='blue'>" + util.Color.blue(color) + "</font>, "
+				+ util.Color.alpha(color) + "]</html>");
 		getLabelOthers()
 				.setText("<html>" + Integer.toHexString(color)
-						+ ", [<font color='gray'>" + utils.Color.gray(color) + "</font>]</html>");
+						+ ", [<font color='gray'>" + util.Color.gray(color) + "</font>]</html>");
 		getPanel().setColor(new Color(color));
 	}
 

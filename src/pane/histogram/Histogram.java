@@ -39,7 +39,7 @@ public class Histogram extends Pane implements Observer {
 		super(image);
 		getImage().addObserver(this);
 		setChannel(channel);
-		setData(utils.Color.matrix(getImage().get(), getChannel()));
+		setData(util.Color.matrix(getImage().get(), getChannel()));
 		setColor(color);
 		setPopup(new JPopupMenu("Edit"));
 		ButtonGroup group = new ButtonGroup();
@@ -179,7 +179,7 @@ public class Histogram extends Pane implements Observer {
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		if(o == getImage()) {
-			setData(utils.Color.matrix(((Image)o).get(), channel));
+			setData(util.Color.matrix(((Image)o).get(), channel));
 		}
 	}
 

@@ -34,7 +34,7 @@ import pane.filterdialog.FilterDialog;
 import pane.geodialog.GeometricDialog;
 import pane.histogram.HistogramPane;
 import pane.properties.PropertiesPane;
-import utils.ImageUtils;
+import util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class ImageFrame extends Frame implements Observer {

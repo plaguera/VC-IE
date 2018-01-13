@@ -22,10 +22,10 @@ public class HistogramPane extends JPanel  {
 
 	public HistogramPane(Image image) {
 		setTabbedPane(new JTabbedPane());
-		setHistRed(new Histogram(image, utils.Color.RED, Color.RED));
-		setHistGreen(new Histogram(image, utils.Color.GREEN, Color.GREEN));
-		setHistBlue(new Histogram(image, utils.Color.BLUE, Color.BLUE));
-		setHistGray(new Histogram(image, utils.Color.GRAY, Color.DARK_GRAY));
+		setHistRed(new Histogram(image, util.Color.RED, Color.RED));
+		setHistGreen(new Histogram(image, util.Color.GREEN, Color.GREEN));
+		setHistBlue(new Histogram(image, util.Color.BLUE, Color.BLUE));
+		setHistGray(new Histogram(image, util.Color.GRAY, Color.DARK_GRAY));
 		setLayout(new BorderLayout());
 		
 		add(getTabbedPane(), BorderLayout.CENTER);

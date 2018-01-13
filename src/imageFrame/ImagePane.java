@@ -26,7 +26,7 @@ import pane.gamma.GammaCorrectionPane;
 import pane.linearAdjustment.LinearAdjustmentPane;
 import pane.linearTransformation.FunctionSegment;
 import pane.linearTransformation.LinearTranformationPane;
-import utils.ImageUtils;
+import util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class ImagePane extends Panel {

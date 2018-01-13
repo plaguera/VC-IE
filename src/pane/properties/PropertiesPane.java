@@ -14,6 +14,7 @@ import javax.swing.SwingConstants;
 
 import image.Image;
 import image.Pane;
+import util.Color;
 
 @SuppressWarnings("serial")
 public class PropertiesPane extends Pane implements Observer {
@@ -32,43 +33,43 @@ public class PropertiesPane extends Pane implements Observer {
 		categFormat.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categFormat);
 
-		categResolution = new JLabel(getImage().getResolution());
+		categResolution = new JLabel();
 		categResolution.setBorder(BorderFactory.createTitledBorder("Resolution"));
 		categResolution.setHorizontalAlignment(SwingConstants.CENTER);
 		categResolution.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categResolution);
 
-		Point range = getImage().grayRange();
-		categRange = new JLabel("[" + range.x + " - " + range.y + "]");
+		categRange = new JLabel();
 		categRange.setBorder(BorderFactory.createTitledBorder("Value Range"));
 		categRange.setHorizontalAlignment(SwingConstants.CENTER);
 		categRange.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categRange);
 
-		categBrightness = new JLabel(String.valueOf(getImage().brightness()));
+		categBrightness = new JLabel();
 		categBrightness.setBorder(BorderFactory.createTitledBorder("Brightness"));
 		categBrightness.setHorizontalAlignment(SwingConstants.CENTER);
 		categBrightness.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categBrightness);
 
-		categContrast = new JLabel(String.valueOf(getImage().contrast()));
+		categContrast = new JLabel();
 		categContrast.setBorder(BorderFactory.createTitledBorder("Contrast"));
 		categContrast.setHorizontalAlignment(SwingConstants.CENTER);
 		categContrast.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categContrast);
 
-		categDynRange = new JLabel(String.valueOf(getImage().dynamicRange()));
+		categDynRange = new JLabel();
 		categDynRange.setBorder(BorderFactory.createTitledBorder("Dynamic Range"));
 		categDynRange.setHorizontalAlignment(SwingConstants.CENTER);
 		categDynRange.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categDynRange);
 
-		categEntropy = new JLabel(String.valueOf(getImage().shannonEntropy()));
+		categEntropy = new JLabel();
 		categEntropy.setBorder(BorderFactory.createTitledBorder("Entropy"));
 		categEntropy.setHorizontalAlignment(SwingConstants.CENTER);
 		categEntropy.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		add(categEntropy);
-
+		
+		refresh();
 	}
 
 	@Override
@@ -76,19 +77,17 @@ public class PropertiesPane extends Pane implements Observer {
 		super.paintComponent(g);
 		if (!isVisible())
 			return;
-		// categFormat.setText(getImage().getFormat());
-
+		refresh();
+	}
+	
+	private void refresh() {
 		categResolution.setText(getImage().getResolution());
-
-		categRange.setText("[" + getImage().grayRange().x + " - " + getImage().grayRange().y + "]");
-
-		categBrightness.setText(String.valueOf(getImage().brightness()));
-
-		categContrast.setText(String.valueOf(getImage().contrast()));
-
-		categDynRange.setText(String.valueOf(getImage().dynamicRange()));
-
-		categEntropy.setText(String.valueOf(getImage().shannonEntropy()));
+		Point range = Color.grayRange(getImage().get());
+		categRange.setText("[" + range.x + " - " + range.y + "]");
+		categBrightness.setText(String.valueOf(Color.brightness(getImage().get())));
+		categContrast.setText(String.valueOf(Color.contrast(getImage().get())));
+		categDynRange.setText(String.valueOf(Color.dynamicRange(getImage().get())));
+		categEntropy.setText(String.valueOf(Color.shannonEntropy(getImage().get())));
 	}
 
 	@Override

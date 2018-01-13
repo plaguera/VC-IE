@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import imageFrame.ImageFrame;
-import utils.ImageUtils;
+import util.ImageUtils;
 
 public class ImageProcessor {
 

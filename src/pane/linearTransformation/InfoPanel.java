@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import utils.ImageUtils;
+import util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class InfoPanel extends JPanel implements Observer {

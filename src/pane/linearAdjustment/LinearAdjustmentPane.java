@@ -13,6 +13,7 @@ import javax.swing.event.ChangeListener;
 
 import image.Image;
 import image.Pane;
+import util.Color;
 
 @SuppressWarnings("serial")
 public class LinearAdjustmentPane extends Pane {
@@ -29,8 +30,8 @@ public class LinearAdjustmentPane extends Pane {
 	public LinearAdjustmentPane(Image image) {
 		super(image);
 
-		brightness = getImage().brightness();
-		contrast = getImage().contrast();
+		brightness = Color.brightness(getImage().get());
+		contrast = Color.contrast(getImage().get());
 
 		setLayout(new BorderLayout());
 		JPanel panel = new JPanel(new GridLayout(2, 1));

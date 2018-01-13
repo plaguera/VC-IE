@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 import image.Image;
 import image.Pane;
 import imageFrame.ImageFrame;
-import utils.ImageUtils;
+import util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class DifferencePane extends Pane {

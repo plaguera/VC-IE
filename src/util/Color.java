@@ -1,6 +1,9 @@
-package utils;
+package util;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Color {
 
@@ -332,12 +335,12 @@ public class Color {
 		int total = values.length * values[0].length;
 		for (int i = 0; i < values.length; i++) {
 			for (int j = 0; j < values[i].length; j++) {
-				sumRed += utils.Color.red(values[i][j]);
-				sumGreen += utils.Color.green(values[i][j]);
-				sumBlue += utils.Color.blue(values[i][j]);
+				sumRed += util.Color.red(values[i][j]);
+				sumGreen += util.Color.green(values[i][j]);
+				sumBlue += util.Color.blue(values[i][j]);
 			}
 		}
-		return utils.Color.rgbToInt(sumRed / total, sumGreen / total, sumBlue / total);
+		return util.Color.rgbToInt(sumRed / total, sumGreen / total, sumBlue / total);
 	}
 
 	public static int absDifference(int color1, int color2) {
@@ -425,6 +428,72 @@ public class Color {
 			} while (j >= 0 && pO[a] <= pR[j]);
 		}
 		return T;
+	}
+	
+	public static double brightness(BufferedImage image) {
+		int sum = 0;
+		int width = image.getWidth(), height = image.getHeight();
+		int total = width * height;
+		for (int col = 0; col < width; col++)
+			for (int row = 0; row < height; row++)
+				sum += Color.gray(image.getRGB(col, row));
+		return (double) sum / (double) total;
+	}
+
+	public static double contrast(BufferedImage image) {
+		int width = image.getWidth(), height = image.getHeight();
+		int[] aux = new int[width * height];
+		int k = 0;
+		for (int col = 0; col < width; col++)
+			for (int row = 0; row < height; row++)
+				aux[k++] = Color.gray(image.getRGB(col, row));
+
+		double sum = 0.0, standardDeviation = 0.0;
+		for (int num : aux)
+			sum += num;
+
+		double mean = (double) sum / (double) aux.length;
+		for (int num : aux)
+			standardDeviation += Math.pow(num - mean, 2);
+
+		return Math.sqrt((double) standardDeviation / (double) aux.length);
+	}
+
+	public static double shannonEntropy(BufferedImage image) {
+		double[] normalized = util.Color.normalizedGray(image);
+		double entropy = 0.0d;
+		for (int i = 0; i < normalized.length; i++)
+			entropy -= normalized[i] * MathUtil.log2(normalized[i]);
+		return entropy;
+	}
+
+	public static int dynamicRange(BufferedImage image) {
+		int[][] gray = util.Color.grayMatrix(image);
+		List<Integer> aux = new ArrayList<Integer>();
+		int width = image.getWidth(), height = image.getHeight();
+		for (int col = 0; col < width; col++)
+			for (int row = 0; row < height; row++)
+				if (!aux.contains(gray[col][row]) && gray[col][row] != -1)
+					aux.add(gray[col][row]);
+		return aux.size();
+	}
+
+	public static Point grayRange(BufferedImage image) {
+		int max = Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
+		int[][] gray = util.Color.grayMatrix(image);
+		int width = image.getWidth(), height = image.getHeight();
+		for (int col = 0; col < width; col++)
+			for (int row = 0; row < height; row++) {
+				int value = gray[col][row];
+				if (value == -1)
+					continue;
+				if (value > max)
+					max = value;
+				if (value < min)
+					min = value;
+			}
+		return new Point(min, max);
 	}
 
 }

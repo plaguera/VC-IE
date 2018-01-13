@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 
 import image.Image;
 import image.Pane;
-import utils.ImageUtils;
+import util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class LinearTranformationPane extends Pane {

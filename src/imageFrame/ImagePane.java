@@ -19,7 +19,6 @@ import javax.swing.JTabbedPane;
 
 import image.Image;
 import image.Panel;
-import image.RGB;
 import listener.MousePixelListener;
 import pane.difference.DifferencePane;
 import pane.digitalization.DigitalizationPane;
@@ -119,15 +118,15 @@ public class ImagePane extends Panel {
 							FunctionSegment aux = new FunctionSegment(getrP1(), getrP2());
 							int minX = Math.min(getrP1().x, getrP2().x);
 							int maxX = Math.max(getrP1().x, getrP2().x);
-							RGB[] pixels = new RGB[maxX - minX];
+							int[] pixels = new int[maxX - minX];
 							int k = 0;
 							for (x = minX; x < maxX; x++) {
 								y = (int) aux.f(x);
-								pixels[k++] = new RGB(image.get().getRGB(x, y));
+								pixels[k++] = image.get().getRGB(x, y);
 							}
 							BufferedImage image = new BufferedImage(maxX-minX+1, 1, BufferedImage.TYPE_INT_RGB);
 							for(int i = 0; i < pixels.length; i++)
-								image.setRGB(i, 0, pixels[i].toInt());
+								image.setRGB(i, 0, pixels[i]);
 							getImage().getDll().add(image);
 							getImage().changed();
 							setCS(false);

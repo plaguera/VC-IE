@@ -42,9 +42,13 @@ public class ImageUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		BufferedImage out = new BufferedImage(in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		return ImageUtils.changeImageType(in, BufferedImage.TYPE_INT_ARGB);
+	}
+	
+	public static BufferedImage changeImageType(BufferedImage image, int type) {
+		BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), type);
 		Graphics2D g = out.createGraphics();
-		g.drawImage(in, 0, 0, in.getWidth(), in.getHeight(), null);
+		g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
 		g.dispose();
 		return out;
 	}
@@ -85,7 +89,8 @@ public class ImageUtils {
 		try {
 			return filename.substring(filename.lastIndexOf(".") + 1);
 		} catch (Exception e) {
-			return "";
+			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -136,7 +141,7 @@ public class ImageUtils {
 		BufferedImage image = rgbToGrayscaleCopyAuto(original);
 		for (int row = 0; row < image.getHeight(); row++) {
 			for (int col = 0; col < image.getWidth(); col++) {
-				int value = ColorUtils.intToRGB(image.getRGB(col, row))[0];
+				int value = utils.Color.intToRGB(image.getRGB(col, row))[0];
 				for (FunctionSegment segment : f) {
 					if (segment.getP1().getX() <= value) {
 						value = ImageUtils.truncate((int) segment.f(value));
@@ -144,7 +149,7 @@ public class ImageUtils {
 					}
 				}
 
-				image.setRGB(col, row, ColorUtils.rgbToInt(value, value, value));
+				image.setRGB(col, row, utils.Color.rgbToInt(value, value, value));
 			}
 		}
 		return image;
@@ -230,7 +235,7 @@ public class ImageUtils {
 	}
 
 	public static int brightness(int color) {
-		int[] c = ColorUtils.intToRGB(color);
+		int[] c = utils.Color.intToRGB(color);
 		int r = (int) (c[0] * NTSC_RED);
 		int g = (int) (c[1] * NTSC_GREEN);
 		int b = (int) (c[2] * NTSC_BLUE);
@@ -238,29 +243,29 @@ public class ImageUtils {
 	}
 
 	public static int gamma(int color, double gamma) {
-		int[] rgb = ColorUtils.intToRGB(color);
+		int[] rgb = utils.Color.intToRGB(color);
 		double gammaCorrection = 1 / gamma;
 		int r = (int) (255 * Math.pow((double) (rgb[0] / 255d), gammaCorrection));
 		int g = (int) (255 * Math.pow((double) (rgb[1] / 255d), gammaCorrection));
 		int b = (int) (255 * Math.pow((double) (rgb[2] / 255d), gammaCorrection));
-		return ColorUtils.rgbToInt(r, g, b);
+		return utils.Color.rgbToInt(r, g, b);
 	}
 
 	public static int brighten(int color, int offset) {
-		int[] rgb = ColorUtils.intToRGB(color);
+		int[] rgb = utils.Color.intToRGB(color);
 		rgb[0] = truncate(rgb[0] + offset);
 		rgb[1] = truncate(rgb[1] + offset);
 		rgb[2] = truncate(rgb[2] + offset);
-		return ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]);
+		return utils.Color.rgbToInt(rgb[0], rgb[1], rgb[2]);
 	}
 
 	public static int contrast(int color, float contrast) {
 		float factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-		int[] rgb = ColorUtils.intToRGB(color);
+		int[] rgb = utils.Color.intToRGB(color);
 		rgb[0] = (int) truncate(factor * (rgb[0] - 128) + 128);
 		rgb[1] = (int) truncate(factor * (rgb[1] - 128) + 128);
 		rgb[2] = (int) truncate(factor * (rgb[2] - 128) + 128);
-		return ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]);
+		return utils.Color.rgbToInt(rgb[0], rgb[1], rgb[2]);
 	}
 
 	public static int truncate(int value) {

@@ -2,7 +2,6 @@ package image;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -19,9 +18,7 @@ import rotation.RotateAndPaint;
 import rotation.RotateBilinearInterpolation;
 import rotation.RotateNearestNeighbour;
 import rotation.Rotation;
-import utils.ColorUtils;
 import utils.DLL;
-import utils.HistogramUtils;
 import utils.ImageUtils;
 
 public class Image extends Observable {
@@ -86,12 +83,7 @@ public class Image extends Observable {
 	}
 
 	public void toGrayScale() {
-		BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(),
-				BufferedImage.TYPE_BYTE_GRAY);
-		Graphics g = image.getGraphics();
-		g.drawImage(original, 0, 0, null);
-		g.dispose();
-		getDll().add(image);
+		getDll().add(ImageUtils.changeImageType(get(), BufferedImage.TYPE_BYTE_GRAY));
 		changed();
 	}
 
@@ -115,11 +107,11 @@ public class Image extends Observable {
 		double B = brightness - ImageUtils.brightness(lastCommit()) * A;
 		for (int row = 0; row < get().getHeight(); row++) {
 			for (int col = 0; col < get().getWidth(); col++) {
-				int[] rgb = ColorUtils.intToRGB(lastCommit().getRGB(col, row));
+				int[] rgb = utils.Color.intToRGB(lastCommit().getRGB(col, row));
 				rgb[0] = ImageUtils.truncate((int) (rgb[0] * A + B));
 				rgb[1] = ImageUtils.truncate((int) (rgb[1] * A + B));
 				rgb[2] = ImageUtils.truncate((int) (rgb[2] * A + B));
-				image.setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
+				image.setRGB(col, row, utils.Color.rgbToInt(rgb[0], rgb[1], rgb[2]));
 			}
 		}
 		getDll().add(image);
@@ -128,12 +120,12 @@ public class Image extends Observable {
 
 	public void gamma(double gamma) {
 		BufferedImage image = ImageUtils.copyImage(lastCommit());
-		RGB[][] lut = new LUT(lastCommit()).getLut();
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++) {
-				RGB i = lut[col][row].gamma(gamma);
-				image.setRGB(col, row, i.toInt());
+		for (int col = 0; col < get().getWidth(); col++) {
+			for (int row = 0; row < get().getHeight(); row++) {
+				int value = utils.Color.gamma(image.getRGB(col, row), gamma);
+				image.setRGB(col, row, value);
 			}
+		}
 		getDll().add(image);
 		changed();
 	}
@@ -142,7 +134,7 @@ public class Image extends Observable {
 		BufferedImage image = ImageUtils.copyImage(lastCommit());
 		for (int row = 0; row < get().getHeight(); row++) {
 			for (int col = 0; col < get().getWidth(); col++) {
-				int[] rgb = ColorUtils.intToRGB(lastCommit().getRGB(col, row));
+				int[] rgb = utils.Color.intToRGB(lastCommit().getRGB(col, row));
 				for (int i = 0; i < rgb.length; i++) {
 					for (FunctionSegment segment : f) {
 						if (segment.contains(rgb[i])) {
@@ -151,7 +143,7 @@ public class Image extends Observable {
 						}
 					}
 				}
-				image.setRGB(col, row, ColorUtils.rgbToInt(rgb[0], rgb[1], rgb[2]));
+				image.setRGB(col, row, utils.Color.rgbToInt(rgb[0], rgb[1], rgb[2]));
 			}
 		}
 		getDll().add(image);
@@ -160,10 +152,7 @@ public class Image extends Observable {
 
 	public void equalize() {
 		BufferedImage image = ImageUtils.copyImage(get());
-		LUT lut = new LUT(image);
-		int[][] gray = lut.getGrayMatrix();
-		int[] grayAcc = lut.cumulativeCount();
-		int[][] result = equalizeMatrix(grayAcc, gray);
+		int[][] result = equalizeMatrix(utils.Color.cumulativeGray(image), utils.Color.grayMatrix(image));
 		for (int i = 0; i < result.length; i++)
 			for (int j = 0; j < result[i].length; j++)
 				image.setRGB(i, j, new Color(result[i][j], result[i][j], result[i][j]).getRGB());
@@ -173,42 +162,42 @@ public class Image extends Observable {
 
 	public void equalizeRGB() {
 		BufferedImage image = ImageUtils.copyImage(get());
-		LUT lut = new LUT(image);
-		int[][] red = lut.getRedMatrix();
-		int[][] green = lut.getGreenMatrix();
-		int[][] blue = lut.getBlueMatrix();
-		int[] redAcc = lut.cumulativeRedCount();
-		int[] greenAcc = lut.cumulativeGreenCount();
-		int[] blueAcc = lut.cumulativeBlueCount();
+		int[][] red = utils.Color.redMatrix(image);
+		int[][] green = utils.Color.greenMatrix(image);
+		int[][] blue = utils.Color.blueMatrix(image);
+		int[] redAcc = utils.Color.cumulativeRed(image);
+		int[] greenAcc = utils.Color.cumulativeGreen(image);
+		int[] blueAcc = utils.Color.cumulativeBlue(image);
 		int[][] resultR = equalizeMatrix(redAcc, red);
 		int[][] resultG = equalizeMatrix(greenAcc, green);
 		int[][] resultB = equalizeMatrix(blueAcc, blue);
 		for (int i = 0; i < resultR.length; i++)
 			for (int j = 0; j < resultR[i].length; j++)
-				image.setRGB(i, j, new Color(resultR[i][j], resultG[i][j], resultB[i][j]).getRGB());
+				image.setRGB(i, j, utils.Color.rgbToInt(resultR[i][j], resultG[i][j], resultB[i][j]));
 		getDll().add(image);
 		changed();
 	}
 
 	public void specify(String file) {
 		Image desiredImage = new Image(file);
-		LUT current = new LUT(get());
-		LUT desired = new LUT(desiredImage.get());
-
-		int[] r = HistogramUtils.specify(current.redCumulativeNormalizedCount(),
-				desired.redCumulativeNormalizedCount());
-		int[] g = HistogramUtils.specify(current.greenCumulativeNormalizedCount(),
-				desired.greenCumulativeNormalizedCount());
-		int[] b = HistogramUtils.specify(current.blueCumulativeNormalizedCount(),
-				desired.blueCumulativeNormalizedCount());
+		
+		int[] r = utils.Color.specify(	utils.Color.cumulativeNormalizedRed(get()),
+										utils.Color.cumulativeNormalizedRed(desiredImage.get()));
+		int[] g = utils.Color.specify(	utils.Color.cumulativeNormalizedGreen(get()),
+										utils.Color.cumulativeNormalizedGreen(desiredImage.get()));
+		int[] b = utils.Color.specify(	utils.Color.cumulativeNormalizedBlue(get()),
+										utils.Color.cumulativeNormalizedBlue(desiredImage.get()));
 
 		BufferedImage image = ImageUtils.copyImage(get());
-		for (int row = 0; row < image.getHeight(); row++)
-			for (int col = 0; col < image.getWidth(); col++) {
-				RGB value = new RGB(image.getRGB(col, row));
-				int newColor = new RGB(r[value.getRed()], g[value.getGreen()], b[value.getBlue()]).toInt();
-				image.setRGB(col, row, newColor);
+		for (int col = 0; col < image.getWidth(); col++) {
+			for (int row = 0; row < image.getHeight(); row++) {
+				int color = image.getRGB(col, row);
+				color = utils.Color.rgbToInt(	r[utils.Color.red(color)],
+												g[utils.Color.green(color)],
+												b[utils.Color.blue(color)]);
+				image.setRGB(col, row, color);
 			}
+		}
 		getDll().add(image);
 		changed();
 	}
@@ -230,7 +219,7 @@ public class Image extends Observable {
 
 		for (int row = 0; row < image.getHeight(); row += sampleSize) {
 			for (int col = 0; col < image.getWidth(); col += sampleSize) {
-				RGB[][] sample = null;
+				int[][] sample = null;
 				int width = 0, height = 0;
 				if (row + sampleSize >= image.getHeight())
 					width = Math.abs(sampleSize - (image.getHeight() - row + sampleSize));
@@ -241,17 +230,17 @@ public class Image extends Observable {
 				else
 					height = sampleSize;
 				int side = Math.min(width, height);
-				sample = new RGB[side][side];
+				sample = new int[side][side];
 
 				for (int i = 0; i < side; i++)
 					for (int j = 0; j < side; j++)
-						sample[i][j] = new RGB(image.getRGB(col + i, row + j));
+						sample[i][j] = image.getRGB(col + i, row + j);
 
-				RGB average = RGB.average(sample);
+				int average = utils.Color.average(sample);
 
 				for (int i = col; i < col + side; i++)
 					for (int j = row; j < row + side; j++)
-						image.setRGB(i, j, average.toInt());
+						image.setRGB(i, j, average);
 			}
 		}
 		getDll().add(image);
@@ -265,9 +254,8 @@ public class Image extends Observable {
 		for (int row = 0; row < lastCommit().getHeight(); row++) {
 			for (int col = 0; col < lastCommit().getWidth(); col++) {
 				int preColor = lastCommit().getRGB(col, row);
-				RGB preRGB = new RGB(preColor);
-				preRGB.approxMod(length);
-				image.setRGB(col, row, preRGB.toInt());
+				int color = utils.Color.approx(preColor, length);
+				image.setRGB(col, row, color);
 			}
 		}
 		getDll().add(image);
@@ -278,11 +266,10 @@ public class Image extends Observable {
 		if (getWidth() != newImage.getWidth() || getHeight() != newImage.getHeight())
 			return null;
 		BufferedImage result = ImageUtils.copyImage(newImage);
-		for (int row = 0; row < result.getHeight(); row++) {
-			for (int col = 0; col < result.getWidth(); col++) {
-				RGB a = new RGB(newImage.getRGB(col, row));
-				RGB color = get(col, row).absDifference(a);
-				result.setRGB(col, row, color.toInt());
+		for (int col = 0; col < result.getWidth(); col++) {
+			for (int row = 0; row < result.getHeight(); row++) {
+				int diff = utils.Color.absDifference(newImage.getRGB(col, row), get().getRGB(col, row));
+				result.setRGB(col, row, diff);
 			}
 		}
 		return new Image(result, getPath());
@@ -290,11 +277,12 @@ public class Image extends Observable {
 
 	public Image colorChangeMap(int threshold) {
 		BufferedImage aux = ImageUtils.copyImage(get());
-		RGB[][] rgb = new LUT(aux).getLut();
-		for (int row = 0; row < get().getHeight(); row++)
-			for (int col = 0; col < get().getWidth(); col++)
-				if (rgb[col][row].gray() >= threshold)
-					aux.setRGB(col, row, Color.RED.getRGB());
+		int[][] gray = utils.Color.grayMatrix(get());
+		int diffColor = Color.RED.getRGB();
+		for (int col = 0; col < get().getWidth(); col++)
+			for (int row = 0; row < get().getHeight(); row++)
+				if (gray[col][row] >= threshold)
+					aux.setRGB(col, row, diffColor);
 		return new Image(aux, getPath());
 	}
 
@@ -390,10 +378,9 @@ public class Image extends Observable {
 
 	public void convolute(Kernel kernel) {
 		float[][] k = ImageUtils.doubleArrayDimension(kernel);
-		LUT lut = new LUT(this);
-		int[][] red = convoluteChannel(lut.getRedMatrix(), k);
-		int[][] green = convoluteChannel(lut.getGreenMatrix(), k);
-		int[][] blue = convoluteChannel(lut.getBlueMatrix(), k);
+		int[][] red = convoluteChannel(utils.Color.redMatrix(get()), k);
+		int[][] green = convoluteChannel(utils.Color.greenMatrix(get()), k);
+		int[][] blue = convoluteChannel(utils.Color.blueMatrix(get()), k);
 		getDll().add(ImageUtils.formImage(red, green, blue));
 		changed();
 	}
@@ -468,7 +455,7 @@ public class Image extends Observable {
 	}
 
 	public double shannonEntropy() {
-		double[] normalized = new LUT(get()).normalizedCount();
+		double[] normalized = utils.Color.normalizedGray(get());
 		double entropy = 0.0d;
 		for (int i = 0; i < normalized.length; i++)
 			entropy -= normalized[i] * log2(normalized[i]);
@@ -476,44 +463,30 @@ public class Image extends Observable {
 	}
 
 	public int dynamicRange() {
-		RGB[][] lut = new LUT(get()).getLut();
+		int[][] gray = utils.Color.grayMatrix(get());
 		List<Integer> aux = new ArrayList<Integer>();
 		for (int i = 0; i < get().getWidth(); i++)
 			for (int j = 0; j < get().getHeight(); j++)
-				if (!aux.contains(lut[i][j].gray()))
-					aux.add(lut[i][j].gray());
+				if (!aux.contains(gray[i][j]) && gray[i][j] != -1)
+					aux.add(gray[i][j]);
 		return aux.size();
 	}
 
 	public Point grayRange() {
 		int max = Integer.MIN_VALUE;
 		int min = Integer.MAX_VALUE;
-		RGB[][] lut = new LUT(get()).getLut();
+		int[][] gray = utils.Color.grayMatrix(get());
 		for (int i = 0; i < get().getWidth(); i++)
 			for (int j = 0; j < get().getHeight(); j++) {
-				int gray = lut[i][j].gray();
-				if (gray > max)
-					max = gray;
-				if (gray < min)
-					min = gray;
+				int value = gray[i][j];
+				if (value == -1)
+					continue;
+				if (value > max)
+					max = value;
+				if (value < min)
+					min = value;
 			}
 		return new Point(min, max);
-	}
-
-	public RGB get(int x, int y) {
-		return new RGB(get().getRGB(x, y));
-	}
-
-	public int getRed(int x, int y) {
-		return new RGB(get().getRGB(x, y)).getRed();
-	}
-
-	public int getGreen(int x, int y) {
-		return new RGB(get().getRGB(x, y)).getGreen();
-	}
-
-	public int getBlue(int x, int y) {
-		return new RGB(get().getRGB(x, y)).getBlue();
 	}
 
 	public void changed() {

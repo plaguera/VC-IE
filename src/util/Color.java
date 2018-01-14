@@ -382,6 +382,17 @@ public class Color {
 		int B = Color.blue(color);
 		return (int) (R * NTSC_RED + G * NTSC_GREEN + B * NTSC_BLUE);
 	}
+	
+	public static int sepia(int color) {
+		int R = Color.red(color);
+		int G = Color.green(color);
+		int B = Color.blue(color);
+		double TR = 0.393 * R + 0.769 * G + 0.189 * B;
+		double TG = 0.349 * R + 0.686 * G + 0.168 * B;
+		double TB = 0.272 * R + 0.534 * G + 0.131 * B;
+		return Color.rgbToInt((int)MathUtil.truncate(TR), (int)MathUtil.truncate(TG), (int)MathUtil.truncate(TB));
+		
+	}
 
 	public static int rgbToInt(int R, int G, int B) {
 		return (255 & 0xff) << 24 | (R & 0xff) << 16 | (G & 0xff) << 8 | (B & 0xff);

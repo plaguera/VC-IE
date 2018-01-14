@@ -65,9 +65,20 @@ public class Image extends Observable {
 	public void ctrlY() { getDll().forward(); changed(); }
 	public void reset() { getDll().toBeginning(); changed(); }
 	
-	public void toGrayScale() { getDll().add(ImageUtils.changeImageType(get(), BufferedImage.TYPE_BYTE_GRAY)); changed(); }
 	public void subimage(int x, int y, int w, int h) { getDll().add(get().getSubimage(x, y, w, h)); changed(); }
+	public void toGrayScale() { getDll().add(ImageUtils.changeImageType(get(), BufferedImage.TYPE_BYTE_GRAY)); changed(); }
 
+	public void toSepia() {
+		BufferedImage image = ImageUtils.copyImage(lastCommit());
+		for (int row = 0; row < get().getHeight(); row++) {
+			for (int col = 0; col < get().getWidth(); col++) {
+				image.setRGB(col, row, util.Color.sepia(image.getRGB(col, row)));
+			}
+		}
+		getDll().add(image);
+		changed();
+	}
+	
 	public void adjustment(double brightness, double contrast) {
 		BufferedImage image = ImageUtils.copyImage(lastCommit());
 

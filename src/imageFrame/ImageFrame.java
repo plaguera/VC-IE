@@ -41,9 +41,9 @@ public class ImageFrame extends Frame implements Observer {
 
 	private JMenuBar menuBar;
 	private JMenu mnFile, mnEdit, mnView, mnGeometric, mnHistogram, mnFilter;
-	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmShowHideProp, mntmUndo, mntmRedo, mntmFlipH,
+	private JMenuItem mntmOpen, mntmSave, mntmExit, mntmToGrayscale, mntmToSepia, mntmShowHideProp, mntmUndo, mntmRedo, mntmFlipH,
 			mntmFlipV, mntmTrans, mntmRotate, mntmScale, mntmROI, mntmCS, mntmEQ, mntmEQRGB, mntmSpecify, mntmMean,
-			mntmGauss, mntmXGrad, mntmYGrad, mntmXSobel, mntmYSobel, mntmConvolve;
+			mntmGauss, mntmXGrad, mntmYGrad, mntmXSobel, mntmYSobel, mntmSharpen, mntmEmboss, mntmConvolve;
 
 	private Image image;
 	private JTabbedPane tabbedPane;
@@ -121,6 +121,7 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmSave(new JMenuItem("Save..."));
 		setMntmExit(new JMenuItem("Exit...", new ImageIcon("src/images/exit.png")));
 		setMntmToGrayscale(new JMenuItem("Convert to Grayscale", new ImageIcon("src/images/grayscale.png")));
+		setMntmToSepia(new JMenuItem("Convert to Sepia", new ImageIcon("src/images/grayscale.png")));
 		setMntmShowHideProp(new JCheckBoxMenuItem("Show Properties", false));
 		setMntmUndo(new JMenuItem("Undo", new ImageIcon("src/images/undo.png")));
 		setMntmRedo(new JMenuItem("Redo", new ImageIcon("src/images/redo.png")));
@@ -140,6 +141,8 @@ public class ImageFrame extends Frame implements Observer {
 		setMntmYGrad(new JMenuItem("Vertical Gradient", new ImageIcon("src/images/vertical.png")));
 		setMntmXSobel(new JMenuItem("Horizontal Sobel", new ImageIcon("src/images/horizontal.png")));
 		setMntmYSobel(new JMenuItem("Vertical Sobel", new ImageIcon("src/images/vertical.png")));
+		setMntmSharpen(new JMenuItem("Sharpen", new ImageIcon("src/images/sharpen.png")));
+		setMntmEmboss(new JMenuItem("Emboss", new ImageIcon("src/images/emboss.png")));
 		setMntmConvolve(new JMenuItem("Convolve...", new ImageIcon("src/images/matrix.png")));
 
 		getMntmOpen().setIcon(UIManager.getIcon("FileView.fileIcon"));
@@ -154,6 +157,7 @@ public class ImageFrame extends Frame implements Observer {
 		getMnEdit().add(getMntmROI());
 		getMnEdit().add(getMntmCS());
 		getMnEdit().add(getMntmToGrayscale());
+		getMnEdit().add(getMntmToSepia());
 
 		getMnView().add(getMntmShowHideProp());
 		
@@ -173,6 +177,8 @@ public class ImageFrame extends Frame implements Observer {
 		getMnFilter().add(getMntmYGrad());
 		getMnFilter().add(getMntmXSobel());
 		getMnFilter().add(getMntmYSobel());
+		getMnFilter().add(getMntmSharpen());
+		getMnFilter().add(getMntmEmboss());
 		getMnFilter().add(getMntmConvolve());
 
 		getMntmOpen().addActionListener(new ActionListener() {
@@ -217,6 +223,12 @@ public class ImageFrame extends Frame implements Observer {
 				getImage().toGrayScale();
 			}
 		});
+		
+		getMntmToSepia().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().toSepia();
+			}
+		});
 
 		getMntmShowHideProp().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -230,6 +242,7 @@ public class ImageFrame extends Frame implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlZ();
 				refresh();
+				angles.clear();
 			}
 		});
 
@@ -237,6 +250,7 @@ public class ImageFrame extends Frame implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				getImage().ctrlY();
 				refresh();
+				angles.clear();
 			}
 		});
 		
@@ -349,6 +363,18 @@ public class ImageFrame extends Frame implements Observer {
 			}
 		});
 		
+		getMntmSharpen().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().convolute(Filter.KERNEL_SHARPEN);
+			}
+		});
+		
+		getMntmEmboss().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getImage().convolute(Filter.KERNEL_EMBOSS);
+			}
+		});
+		
 		getMntmConvolve().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getImage().convolute(FilterDialog.CONVOLVE_DIALOG().launch());
@@ -362,10 +388,12 @@ public class ImageFrame extends Frame implements Observer {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
 					getImage().ctrlZ();
 					refresh();
+					angles.clear();
 				}
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
 					getImage().ctrlY();
 					refresh();
+					angles.clear();
 				}
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 				}
@@ -403,6 +431,7 @@ public class ImageFrame extends Frame implements Observer {
 	public JMenuItem getMntmSave() { return mntmSave; }
 	public JMenuItem getMntmExit() { return mntmExit; }
 	public JMenuItem getMntmToGrayscale() { return mntmToGrayscale; }
+	public JMenuItem getMntmToSepia() { return mntmToSepia; }
 	public JMenuItem getMntmShowHideProp() { return mntmShowHideProp; }
 	public JMenuItem getMntmUndo() { return mntmUndo; }
 	public JMenuItem getMntmRedo() { return mntmRedo; }
@@ -423,6 +452,22 @@ public class ImageFrame extends Frame implements Observer {
 	public JMenuItem getMntmXSobel() { return mntmXSobel; }
 	public JMenuItem getMntmYSobel() { return mntmYSobel; }
 
+	public JMenuItem getMntmSharpen() {
+		return mntmSharpen;
+	}
+
+	public JMenuItem getMntmEmboss() {
+		return mntmEmboss;
+	}
+
+	public void setMntmSharpen(JMenuItem mntmSharpen) {
+		this.mntmSharpen = mntmSharpen;
+	}
+
+	public void setMntmEmboss(JMenuItem mntmEmboss) {
+		this.mntmEmboss = mntmEmboss;
+	}
+
 	public void setImage(Image image) { this.image = image; }
 	public void setTabbedPane(JTabbedPane tabbedPane) { this.tabbedPane = tabbedPane; }
 	public void setImagePane(ImagePane imagePane) { this.imagePane = imagePane; }
@@ -439,6 +484,7 @@ public class ImageFrame extends Frame implements Observer {
 	public void setMntmSave(JMenuItem mntmSave) { this.mntmSave = mntmSave; }
 	public void setMntmExit(JMenuItem mntmExit) { this.mntmExit = mntmExit; }
 	public void setMntmToGrayscale(JMenuItem mntmToGrayscale) { this.mntmToGrayscale = mntmToGrayscale; }
+	public void setMntmToSepia(JMenuItem mntmToSepia) { this.mntmToSepia = mntmToSepia; }
 	public void setMntmShowHideProp(JMenuItem mntmShowHideProp) { this.mntmShowHideProp = mntmShowHideProp; }
 	public void setMntmUndo(JMenuItem mntmUndo) { this.mntmUndo = mntmUndo; }
 	public void setMntmRedo(JMenuItem mntmRedo) { this.mntmRedo = mntmRedo; }

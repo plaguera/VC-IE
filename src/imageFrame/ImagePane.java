@@ -135,6 +135,10 @@ public class ImagePane extends Panel {
 							getImage().getDll().add(image);
 							getImage().changed();
 							setCS(false);
+							ImageFrame frame = ImageUtils.getImageFrame(e.getComponent());
+							frame.getImagePane().getImagePanel().setPreferredSize();
+							frame.getImagePane().repaint();
+							frame.pack();
 						}
 						setrP1(null);
 						setrP2(null);

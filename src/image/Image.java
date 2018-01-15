@@ -240,28 +240,32 @@ public class Image extends Observable {
 		changed();
 	}
 
-	public Image difference(BufferedImage newImage) {
+	public void difference(BufferedImage newImage) {
 		if (getWidth() != newImage.getWidth() || getHeight() != newImage.getHeight())
-			return null;
-		BufferedImage result = ImageUtils.copyImage(newImage);
-		for (int col = 0; col < result.getWidth(); col++) {
-			for (int row = 0; row < result.getHeight(); row++) {
+			throw new IllegalArgumentException();
+		BufferedImage image = ImageUtils.emptyImage(get());
+		for (int col = 0; col < image.getWidth(); col++) {
+			for (int row = 0; row < image.getHeight(); row++) {
 				int diff = util.Color.absDifference(newImage.getRGB(col, row), get().getRGB(col, row));
-				result.setRGB(col, row, diff);
+				image.setRGB(col, row, diff);
 			}
 		}
-		return new Image(result, getPath());
+		getDll().add(image);
+		changed();
 	}
 
-	public Image colorChangeMap(int threshold) {
-		BufferedImage aux = ImageUtils.copyImage(get());
-		int[][] gray = util.Color.grayMatrix(get());
+	public void colorChangeMap(BufferedImage newImage, int threshold) {
+		if (getWidth() != newImage.getWidth() || getHeight() != newImage.getHeight())
+			throw new IllegalArgumentException();
+		
+		BufferedImage image = ImageUtils.copyImage(get());
 		int diffColor = Color.RED.getRGB();
-		for (int col = 0; col < get().getWidth(); col++)
-			for (int row = 0; row < get().getHeight(); row++)
-				if (gray[col][row] >= threshold)
-					aux.setRGB(col, row, diffColor);
-		return new Image(aux, getPath());
+		for (int col = 0; col < image.getWidth(); col++)
+			for (int row = 0; row < image.getHeight(); row++)
+				if (util.Color.colorDifferenceThreshold(get().getRGB(col, row), newImage.getRGB(col, row), threshold))
+					image.setRGB(col, row, diffColor);
+		getDll().add(image);
+		changed();
 	}
 
 	public void flipHorizontally() {

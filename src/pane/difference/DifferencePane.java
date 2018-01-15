@@ -20,7 +20,6 @@ import javax.swing.event.ChangeListener;
 
 import image.Image;
 import image.Pane;
-import imageFrame.ImageFrame;
 import util.ImageUtils;
 
 @SuppressWarnings("serial")
@@ -66,8 +65,7 @@ public class DifferencePane extends Pane {
 			public void actionPerformed(ActionEvent e) {
 				if (getTFFilePath().getText() == null || getTFFilePath().getText().equals(""))
 					return;
-				ImageUtils.launchFrame(
-						new ImageFrame(getImage().difference(ImageUtils.readImage(getTFFilePath().getText()))));
+				getImage().difference(ImageUtils.readImage(getTFFilePath().getText()));
 			}
 		});
 		getBtnChangeMap().addActionListener(new ActionListener() {
@@ -75,7 +73,7 @@ public class DifferencePane extends Pane {
 				if (getTFFilePath().getText() == null || getTFFilePath().getText().equals(""))
 					return;
 				int threshold = (int) getSpinnerThreshold().getValue();
-				ImageUtils.launchFrame(new ImageFrame(getImage().colorChangeMap(threshold)));
+				getImage().colorChangeMap(ImageUtils.readImage(getTFFilePath().getText()), threshold);
 			}
 		});
 

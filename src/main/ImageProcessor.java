@@ -58,7 +58,7 @@ public class ImageProcessor {
 		panel.setBorder( textField.getBorder() );
 		textField.setBorder(null);
 		//textField.setText("/Users/peter/Drive/VC/marbles.bmp");
-		textField.setText("/Users/peter/Desktop/aux1.bmp");
+		textField.setText("/Users/peter/Desktop/eqColor.png");
 		outerPanel.add(panel);
 		
         UIManager.put("OptionPane.minimumSize",new Dimension(300, 120));

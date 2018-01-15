@@ -44,6 +44,10 @@ public class ImageUtils {
 		g.dispose();
 		return out;
 	}
+	
+	public static BufferedImage emptyImage(BufferedImage image) {
+		return new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+	}
 
 	public static File openImage() {
 		JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());

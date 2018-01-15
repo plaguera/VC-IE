@@ -506,5 +506,18 @@ public class Color {
 			}
 		return new Point(min, max);
 	}
+	
+	public static boolean colorDifferenceThreshold(int color1, int color2, int threshold) {
+		int r1 = Color.red(color1);
+		int g1 = Color.green(color1);
+		int b1 = Color.blue(color1);
+		int r2 = Color.red(color2);
+		int g2 = Color.green(color2);
+		int b2 = Color.blue(color2);
+		int diffR = Math.abs(r1 - r2);
+		int diffG = Math.abs(g1 - g2);
+		int diffB = Math.abs(b1 - b2);
+		return diffR >= threshold && diffG >= threshold && diffB >= threshold;
+	}
 
 }

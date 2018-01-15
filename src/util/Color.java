@@ -271,7 +271,7 @@ public class Color {
 			sum += i;
 		for (int i = 0; i < values.length; i++) {
 			double norm = values[i] / sum;
-			values[i] = (int) norm;
+			values[i] = norm;
 		}
 		return values;
 	}
@@ -471,7 +471,7 @@ public class Color {
 	}
 
 	public static double shannonEntropy(BufferedImage image) {
-		double[] normalized = util.Color.normalizedGray(image);
+		double[] normalized = Color.normalizedGray(image);
 		double entropy = 0.0d;
 		for (int i = 0; i < normalized.length; i++)
 			entropy -= normalized[i] * MathUtil.log2(normalized[i]);

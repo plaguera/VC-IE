@@ -55,6 +55,7 @@ public class Filter {
 			w++;
 		float[] data = new float[w];
 		int fold = (w - 1) / 2;
+		//System.out.println("FOLD = " + fold);
 		for (int i = 0; i < data.length; i++) {
 			double up = Math.pow(i - fold, 2); // w ≠ -5 - 5
 			double down = 2 * Math.pow(theta, 2);
